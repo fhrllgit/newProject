@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@layer base {
+  .text-hoverBefore {
+    @apply block group-hover:-translate-y-full duration-500;
+  }
+  .text-hoverAfter {
+    @apply absolute -bottom-full group-hover:bottom-0 duration-500;
+  }
+}
+
+  .shadow-custom {
+    box-shadow: 0 4px 6px -1px rgba(200, 0, 255, 0.1);
+  }
+
+  .date-only {
+  color: transparent; 
+  text-shadow: 0 0 0 #000; 
+}
+
+.date-only::-webkit-datetime-edit-text,
+.date-only::-webkit-datetime-edit-month-field,
+.date-only::-webkit-datetime-edit-day-field,
+.date-only::-webkit-datetime-edit-year-field {
+  display: none; 
+}
