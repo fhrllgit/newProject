@@ -19,7 +19,7 @@ const ForYou = () => {
       id: 2,
       image: "../../src/assets/img/hero.jpeg",
       title: "Service 2", 
-       judul: "A FOTOGRAFER TEAM 2",
+      judul: "A FOTOGRAFER TEAM 2",
       description: "Fotografer Terbaik Di Kudus Wedding",
       point: "Lorem ipsum dolor sit amet"
     },
@@ -27,7 +27,7 @@ const ForYou = () => {
       id: 3,
       image: "../../src/assets/img/hero.jpeg",
       title: "Service 3",
-       judul: "A FOTOGRAFER TEAM 3",
+      judul: "A FOTOGRAFER TEAM 3",
       description: "Fotografer Terbaik Di Kudus Portrait",
       point: "Lorem ipsum dolor sit amet"
     },
@@ -149,8 +149,8 @@ const goToSlide = (index) => {
               </div>
             </div>
           </div>
-            <div>
-              <div className="flex justify-center space-x-2 mt-12">
+          <div>
+            <div className="flex justify-center space-x-2 mt-12">
               {cards.map((_, index) => (
                 <button
                   key={index}
