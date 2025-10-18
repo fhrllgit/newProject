@@ -1,35 +1,36 @@
 import { useEffect, useState } from "react";
 import api from "../api/client";
 
-export const useFetch = (endpoint = "/", options = {}) => {
-  const [data, setData] = useState([]); // default array agar .map aman
+export const useFetch = (endpoint, options = {}) => {
+  const [data, setData] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
+    if (!endpoint) return;
+    let active = true;
+
     const fetchData = async () => {
-      setLoading(true);
-      setError(null);
       try {
-        // jika endpoint kosong atau "/" maka akan memanggil baseURL
-        const res = await api(endpoint, options);
-        // fallback: backend bisa mengembalikan array langsung atau object { payload: [...] }
-        const payload = res?.data?.payload ?? res?.data ?? [];
-        if (!cancelled) setData(payload);
+        setLoading(true);
+        const response = await api.get(endpoint, options);
+        if (!active) return;
+
+        // dukung berbagai bentuk response backend
+        const payload = response?.data?.payload ?? response?.data ?? null;
+        setData(payload);
       } catch (err) {
-        if (!cancelled) setError(err.message || err);
+        if (active) setError(err.message || "Terjadi kesalahan");
       } finally {
-        if (!cancelled) setLoading(false);
+        if (active) setLoading(false);
       }
     };
 
     fetchData();
     return () => {
-      cancelled = true;
+      active = false;
     };
-    // kalau options adalah object, stringify agar dependency change terdeteksi
-  }, [endpoint, JSON.stringify(options)]);
+  }, [endpoint]);
 
-  return { data, loading, error };
+  return { data, error, loading };
 };

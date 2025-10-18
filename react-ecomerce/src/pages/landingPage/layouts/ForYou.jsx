@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import Hots from "./Section/Hots";
 
 const ForYou = () => {
-
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const scrolRef = useRef(null)
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrolRef = useRef(null);
 
   const cards = [
     {

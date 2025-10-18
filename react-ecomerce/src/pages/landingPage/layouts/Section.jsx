@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFetch } from "../../../hooks/useFetch";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 
 export function Section() {
   const [liked, setLiked] = useState([]);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [product, setProduct] = useState(null);
+  const [err, setErr] = useState("");
+  const [load, setLoad] = useState(true);
 
   const handleClick = (id, e) => {
     e.preventDefault();
@@ -11,11 +18,35 @@ export function Section() {
     setLiked((prev) => prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
+  
+    useEffect(() => {
+      const fetchProduct = async () => {
+        if (!id) {
+          setErr("ID produk tidak valid");
+          setLoad(false);
+          return;
+        }
+        try {
+          const res = await axios.get(
+            `http://localhost:3005/api/products/product/${id}`
+          );
+          console.log("Product fetched:", res.data);
+          setProduct(res.data);
+        } catch (err) {
+          console.error("Error fetching product:", err);
+          setErr("Gagal memuat data produk");
+        } finally {
+          setLoad(false);
+        }
+      };
+      fetchProduct();
+    }, [id]);
+  
 
-  const { data, loading, error } = useFetch("/");
+  const { data, loading, error } = useFetch("/products/product");
   if (loading) return <p>loading</p>;
   if (error) return <p>Error: {error}</p>;
-  console.log(data);
+  const items = Array.isArray(data) ? data : []
 
   return (
     <>
@@ -28,10 +59,10 @@ export function Section() {
         </div>
         {/* produk */}
         <div className="flex overflow-x-auto scrollbar-hide">
-          {(Array.isArray(data) ? data : []).slice(0, 6).map(item => {
+          {items.slice(0, 6).map(item => {
             return (
-              <a
-                href="#"
+              <div
+                onClick={(e) => {e.preventDefault(); navigate(`/product/${item.id}`)}}
                 key={item.id}
                 className="mx-4 flex-shrink-0 flex flex-1/5 flex-col gap-4 cursor-pointer w-52 border-transparent border hover:border-gray-700 hover:border"
               >
@@ -62,7 +93,7 @@ export function Section() {
                   <p className="mt-2 text-zinc-700 truncate w-full">{item.name}</p>
                   <h1 className="block ">Rp.{item.price}</h1>
                 </div>
-              </a>
+              </div>
             );
           })}
         </div>

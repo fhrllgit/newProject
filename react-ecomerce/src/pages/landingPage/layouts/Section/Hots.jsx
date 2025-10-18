@@ -6,7 +6,6 @@ import wanita from "../../../../assets/img/wanita.png"
 import anak from "../../../../assets/img/anak.png"
 
 function Hots() {
-
   const cards = [
     {
       id: 1,
@@ -25,13 +24,13 @@ function Hots() {
     }
   ]
 
-  const {data, loading, error} = useFetch("/")
+  const {data, loading, error} = useFetch("/products/product")
 
   if (loading) return <p>loading</p>;
   if (error) return <p>Error: {error}</p>;
   const items = Array.isArray(data) ? data : [];
 
-  const productTotal = data.map(p => {
+  const productTotal = items.map(p => {
     const totalStock = p.size.reduce((sum, s) => sum + s.stock, 0);
     return { ...p, totalStock };
   });
@@ -42,7 +41,7 @@ function Hots() {
   
   return (
     <>
-      <div className="mt-28 px-16 py-4 w-screen h-screen overflow-hidden">
+      <div className="mt-28 px-16 py-4 h-screen overflow-hidden">
         <div>
           <h1 className="font-bold text-2xl">WHAT'S HOT</h1>
         </div>
@@ -88,7 +87,7 @@ function Hots() {
       </div>
       <div className="px-14">
         <div className="flex gap-12 max-h-32">
-          {[...data].sort((a,b) => b.id - a.id).slice(0, 4).map((item) => {
+          {[...items].sort((a,b) => b.id - a.id).slice(0, 4).map((item) => {
             return (
               <div 
               key={item.id}
