@@ -3,10 +3,13 @@ import { FiSearch } from "react-icons/fi";
 import { IoMdClose } from "react-icons/io";
 import { LiaShoppingBagSolid } from "react-icons/lia";
 import { TbHeart } from "react-icons/tb";
-import { Link } from "react-scroll";
+// replace react-scroll Link for category navigation
+import { Link as ScrollLink } from "react-scroll";
+import { useNavigate } from "react-router-dom";
 import SearchPopUp from "../layouts/fixtures/SearchPopUp";
 
 function Navbar() {
+  const navigate = useNavigate();
   const [showNav, setShowNav] = useState(true);
   const [showSearch, setShowsearch] = useState(false);
   const lastScrollY = useRef(0);
@@ -37,6 +40,12 @@ function Navbar() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showSearch]);
 
+  // helper: navigasi ke kategori (slug seperti 'pria', 'wanita', 'anak', 'luxury', 'promo')
+  const goToCategory = (slug) => {
+    // optional: pass state (nama kategori) for faster rendering di halaman category
+    navigate(`/category/${slug}`, { state: { fromNav: true } });
+  };
+
   return (
     <>
       <header
@@ -47,51 +56,51 @@ function Navbar() {
           <div className="flex gap-4 text-sm tracking-wider">
             <div className="flex flex-col gap-8 items-center">
               <div className="flex gap-4 text-[13px] tracking-[0.1em]">
-                <Link
-                  to="Hero"
-                  smooth={true}
-                  duration={500}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group"
+                {/* Replace category links with buttons that navigate to category page */}
+                <button
+                  type="button"
+                  onClick={() => goToCategory("pria")}
+                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
                 >
                   <span className="text-hoverBefore">PRIA</span>
                   <span className="text-hoverAfter">PRIA</span>
-                </Link>
-                <Link
-                  to="About"
-                  smooth={true}
-                  duration={500}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group"
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => goToCategory("wanita")}
+                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
                 >
                   <span className="text-hoverBefore">WANITA</span>
                   <span className="text-hoverAfter">WANITA</span>
-                </Link>
-                <Link
-                  to="Service"
-                  smooth={true}
-                  duration={500}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group"
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => goToCategory("anak")}
+                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
                 >
                   <span className="text-hoverBefore">ANAK</span>
                   <span className="text-hoverAfter">ANAK</span>
-                </Link>
-                <Link
-                  to="Portfolio"
-                  smooth={true}
-                  duration={500}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group"
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => goToCategory("luxury")}
+                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
                 >
                   <span className="text-hoverBefore">LUXURY</span>
                   <span className="text-hoverAfter">LUXURY</span>
-                </Link>
-                <Link
-                  to="Contact"
-                  smooth={true}
-                  duration={500}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group"
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => goToCategory("promo")}
+                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
                 >
                   <span className="text-hoverBefore">PROMO</span>
                   <span className="text-hoverAfter">PROMO</span>
-                </Link>
+                </button>
               </div>
               <h1 className="absolute font-bold text-lg tracking-[0.2em] top-15 flex flex-col overflow-hidden">
               </h1>
