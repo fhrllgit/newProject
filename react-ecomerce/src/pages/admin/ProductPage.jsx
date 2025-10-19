@@ -3,7 +3,7 @@ const Dashboard = () => {
     
   return (
     <>
-     <Sidebar/>
+      <Sidebar/>
     </>
   );
 };
