@@ -593,111 +593,116 @@
 
 
 
-  import { useState, useEffect } from "react";
-import axios from "axios";
-import { RiDeleteBinLine } from "react-icons/ri";
+//   
 
-const Dashboard = () => {
-  const [products, setProducts] = useState([]);
-  const [selectedProducts, setSelectedProducts] = useState([]);
-  const [selectAll, setSelectAll] = useState(false);
+import { useState, useContext } from "react";
+import axiosClient from "../api/axiosClient";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-  const fetchProducts = async () => {
+export default function Login() {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false); // ⬅️ state loading
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    setLoading(true);
+    setTimeout(() => {
+      navigate("/register");
+      setLoading(false);
+    }, 700); // delay kecil biar smooth
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true); // ⬅️ aktifkan loading
     try {
-      const res = await axios.get("http://localhost:3005/api/products/product");
-      setProducts(res.data || []);
+      const res = await axiosClient.post("/users/login", form);
+      login(res.data.user, res.data.token);
+      if (res.data.user.role === "admin") navigate("/admin/dashboard");
+      else navigate("/");
     } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  // Toggle checkbox per produk
-  const handleSelectProduct = (id) => {
-    setSelectedProducts((prev) =>
-      prev.includes(id)
-        ? prev.filter((pid) => pid !== id)
-        : [...prev, id]
-    );
-  };
-
-  // Select / Deselect all
-  const handleSelectAll = () => {
-    if (selectAll) {
-      setSelectedProducts([]);
-    } else {
-      setSelectedProducts(products.map((p) => p.id));
-    }
-    setSelectAll(!selectAll);
-  };
-
-  // Delete selected products
-  const handleDeleteSelected = async () => {
-    if (selectedProducts.length === 0) return alert("Pilih produk dulu!");
-    if (!window.confirm("Yakin ingin menghapus produk terpilih?")) return;
-
-    try {
-      await axios.post("http://localhost:3005/api/products/delete-multiple", {
-        ids: selectedProducts,
-      });
-      fetchProducts(); // refresh produk
-      setSelectedProducts([]);
-      setSelectAll(false);
-    } catch (err) {
-      console.error("Error deleting products:", err);
-      alert("Gagal menghapus produk");
+      alert(err.response?.data?.message || "Login gagal");
+    } finally {
+      setLoading(false); // ⬅️ matikan loading di semua kondisi
     }
   };
 
   return (
-    <div>
-      <button
-        onClick={handleDeleteSelected}
-        className="flex cursor-pointer items-center gap-2 bg-red-800 text-white px-4 py-2.5 rounded-lg shadow-lg w-fit mb-4"
-      >
-        <RiDeleteBinLine />
-        <span className="font-medium text-white">Delete</span>
-      </button>
+    <div className="h-screen w-full flex items-center justify-center">
+      {loading ? (
+        // ⬅️ tampilkan tampilan loading saat proses berlangsung
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <p className="text-sm text-gray-700 font-medium">Loading...</p>
+        </div>
+      ) : (
+        <div className="flex min-h-screen">
+          <div className="flex flex-1/2 justify-center">
+            <div className="w-md py-2 flex flex-col">
+              <div className="px-2">
+                <div>
+                  <img
+                    className="w-40 lg:w-70 h-auto object-cover"
+                    src="../src/img/logo.png"
+                    alt=""
+                  />
+                </div>
+                <p className="text-sm font-light tracking-[0.1em] mt-8">
+                  START SESSION
+                </p>
+                <form className="flex flex-col mt-8" onSubmit={handleSubmit}>
+                  <div className="w-full border-b-[#c3c3c3] border-b mt-9">
+                    <input
+                      className="outline-0 ring-0 w-full placeholder:text-xs font-extralight placeholder:text-[#939393] mb-1.5"
+                      placeholder="EMAIL"
+                      onChange={(e) =>
+                        setForm({ ...form, email: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="w-full border-b-[#c3c3c3] border-b mt-9">
+                    <input
+                      className="outline-0 ring-0 w-full placeholder:text-xs font-extralight placeholder:text-[#939393] mb-1.5"
+                      type="password"
+                      placeholder="Password"
+                      onChange={(e) =>
+                        setForm({ ...form, password: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col space-y-2.5 mt-10">
+                    <div className="border flex-1 pb-0.5">
+                      <button
+                        className="text-center w-full text-[#fffbfb] cursor-pointer font-extralight tracking-wider bg-black p-2 text-xs -mt-1 h-8 -ml-0.5"
+                        type="submit"
+                      >
+                        LOGIN
+                      </button>
+                    </div>
 
-      <table className="min-w-full border">
-        <thead>
-          <tr>
-            <th className="px-4 py-3">
-              <input
-                type="checkbox"
-                checked={selectAll}
-                onChange={handleSelectAll}
-              />
-            </th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Current Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p) => (
-            <tr key={p.id}>
-              <td className="px-4 py-3 text-center">
-                <input
-                  type="checkbox"
-                  checked={selectedProducts.includes(p.id)}
-                  onChange={() => handleSelectProduct(p.id)}
-                />
-              </td>
-              <td>{p.id}</td>
-              <td>{p.name}</td>
-              <td>{p.price}</td>
-              <td>{p.current_price}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    <div className="border flex-1 pb-0.5">
+                      <div
+                        onClick={handleClick}
+                        className="text-center flex items-center justify-center w-full text-[#fffbfb] cursor-pointer font-extralight tracking-wider bg-black p-2 text-xs -mt-1 h-8 -ml-0.5"
+                      >
+                        <span>REGISTER</span>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+                <button className="text-xs font-extralight mt-15 cursor-pointer tracking-widest">
+                  BANTUAN
+                </button>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-1/2 border">
+            <p>gambar</p>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default Dashboard;
+}

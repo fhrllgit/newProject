@@ -740,6 +740,7 @@ exports.getFilteredProducts = async (req, res) => {
   }
 };
 
+
 exports.deleteMultipleProducts = async (req, res) => {
   const { ids } = req.body; 
   if (!ids || !ids.length) return res.status(400).json({ message: "No IDs provided" });
@@ -766,6 +767,134 @@ exports.deleteMultipleProducts = async (req, res) => {
     });
 
     res.json({ message: "Products deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "DB error", error: err });
+  }
+};
+
+
+
+exports.getFilteredAll = async (req, res) => {
+  const {
+    search,
+    gender, 
+    category, //
+    minPrice,
+    maxPrice,
+    size,
+    minStock,
+    maxStock,
+  } = req.query;
+
+  let sql = `
+    SELECT 
+      p.*,
+      CASE
+        WHEN p.discount_price IS NOT NULL
+          AND NOW() BETWEEN p.discount_start AND p.discount_end
+        THEN p.discount_price
+        ELSE p.price
+      END AS current_price,
+      c.name AS category_name,
+      c.gender AS category_gender
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE 1=1
+  `;
+
+  const params = [];
+
+  // 🔍 Filter nama produk
+  if (search) {
+    sql += " AND p.name LIKE ?";
+    params.push(`%${search}%`);
+  }
+
+if (gender) {
+  sql += " AND LOWER(c.gender) = LOWER(?)";
+  params.push(gender);
+}
+if (category) {
+  sql += " AND LOWER(c.name) = LOWER(?)";
+  params.push(category);
+}
+
+
+  if (minPrice) {
+    sql += " AND p.price >= ?";
+    params.push(Number(minPrice));
+  }
+  if (maxPrice) {
+    sql += " AND p.price <= ?";
+    params.push(Number(maxPrice));
+  }
+
+  try {
+    const productsResult = await new Promise((resolve, reject) => {
+      db.query(sql, params, (err, result) =>
+        err ? reject(err) : resolve(result)
+      );
+    });
+
+    if (productsResult.length === 0) return res.json([]);
+
+    const productIDs = productsResult.map((p) => p.id);
+
+    const [sizeResult, detailImgResult] = await Promise.all([
+      new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM product_sizes WHERE product_id IN (?)`;
+        db.query(sql, [productIDs], (err, result) =>
+          err ? reject(err) : resolve(result)
+        );
+      }),
+      new Promise((resolve, reject) => {
+        const sql = `SELECT * FROM product_images WHERE product_id IN (?)`;
+        db.query(sql, [productIDs], (err, result) =>
+          err ? reject(err) : resolve(result)
+        );
+      }),
+    ]);
+
+    let products = productsResult.map((p) => ({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      current_price: p.current_price,
+      category: p.category_name,
+      gender: p.category_gender,
+      description: p.description,
+      image: p.img,
+      sizes: sizeResult
+        .filter((s) => s.product_id === p.id)
+        .map((s) => ({
+          type: s.size_type,
+          value: s.size_value,
+          stock: s.stock,
+        })),
+      images: detailImgResult
+        .filter((i) => i.product_id === p.id)
+        .map((i) => i.url),
+    }));
+
+    if (size) {
+      products = products.filter((p) =>
+        p.sizes.some((s) => s.value == size)
+      );
+    }
+
+    const minStockNum = minStock ? Number(minStock) : undefined;
+    const maxStockNum = maxStock ? Number(maxStock) : undefined;
+
+    if (minStockNum !== undefined && maxStockNum !== undefined) {
+      products = products.filter((p) =>
+        p.sizes.some(
+          (s) => s.stock >= minStockNum && s.stock <= maxStockNum
+        )
+      );
+    }
+
+    res.json(products);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "DB error", error: err });

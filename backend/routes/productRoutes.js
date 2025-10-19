@@ -7,6 +7,7 @@ router.get('/', productController.getTestApi)
 router.get('/product', productController.getAllProducts)
 router.get('/product/:id', productController.getAllbyID)
 router.get('/filter', productController.getFilteredProducts)
+router.get('/filtered', productController.getFilteredAll)
 router.post('/post/product', productController.createProduct)
 router.put('/put/product/:id', uploads.fields([
     { name: "singleFile", maxCount: 1},
@@ -15,6 +16,7 @@ router.put('/put/product/:id', uploads.fields([
 productController.updateProduct
 )
 router.post('/delete-multiple', productController.deleteMultipleProducts)
+// router.get('filter/paten')
 
 
 module.exports = router

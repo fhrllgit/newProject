@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiSearch } from "react-icons/fi";
 import { CgMenuRightAlt } from "react-icons/cg";
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const [searchItem, setSearchItem] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const {user, logout} = useContext(AuthContext)
 
   const menuItems = [
     { name: "Dashboard", icons: <LiaHomeSolid />, path: "/admin/dashboard" },
@@ -33,6 +35,11 @@ const Dashboard = () => {
   const filterDashboard = menuItems.filter((item) => {
     return item.name.toLowerCase().includes(searchItem.toLowerCase());
   });
+
+  const handleLogout = () => {
+    logout(),
+    navigate("/login")
+  }
 
   const displayMenu = searchItem ? filterDashboard : menuItems;
 
@@ -164,6 +171,7 @@ const Dashboard = () => {
           </div>
 
           <div
+          onClick={handleLogout}
             className={`
               flex items-center gap-3 
               ${isSidebarOpen ? "px-3" : "px-0 justify-center"} 

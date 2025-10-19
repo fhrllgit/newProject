@@ -238,69 +238,67 @@ const ProductForm = () => {
     }));
   };
 
-  // === SIZE GUIDE HANDLERS ===
-const addGuideColumn = () => {
-  const colName = prompt("Masukka nama kolom (misal: Panjang, Lebar, Dada)");
-  if (colName && colName.trim()) {
+  const addGuideColumn = () => {
+    const colName = prompt("Masukka nama kolom (misal: Panjang, Lebar, Dada)");
+    if (colName && colName.trim()) {
+      setForm((prev) => ({
+        ...prev,
+        size_guide: {
+          ...prev.size_guide,
+          thead: [...prev.size_guide.thead, colName.trim()],
+        },
+      }));
+    }
+  };
+
+  const addGuideRow = () => {
+    if (form.size_guide.thead.length === 0) {
+      alert("Buat kolom dulu sebelum menambah baris!");
+      return;
+    }
+    const newRow = form.size_guide.thead.map(() => "");
     setForm((prev) => ({
       ...prev,
       size_guide: {
         ...prev.size_guide,
-        thead: [...prev.size_guide.thead, colName.trim()],
+        tbody: [...prev.size_guide.tbody, newRow],
       },
     }));
-  }
-};
+  };
 
-const addGuideRow = () => {
-  if (form.size_guide.thead.length === 0) {
-    alert("Buat kolom dulu sebelum menambah baris!");
-    return;
-  }
-  const newRow = form.size_guide.thead.map(() => "");
-  setForm((prev) => ({
-    ...prev,
-    size_guide: {
-      ...prev.size_guide,
-      tbody: [...prev.size_guide.tbody, newRow],
-    },
-  }));
-};
+  const handleGuideCellChange = (rowIdx, colIdx, value) => {
+    setForm((prev) => {
+      const newBody = [...prev.size_guide.tbody];
+      newBody[rowIdx][colIdx] = value;
+      return {
+        ...prev,
+        size_guide: { ...prev.size_guide, tbody: newBody },
+      };
+    });
+  };
 
-const handleGuideCellChange = (rowIdx, colIdx, value) => {
-  setForm((prev) => {
-    const newBody = [...prev.size_guide.tbody];
-    newBody[rowIdx][colIdx] = value;
-    return {
+  const deleteGuideColumn = (index) => {
+    setForm((prev) => {
+      const newHead = prev.size_guide.thead.filter((_, i) => i !== index);
+      const newBody = prev.size_guide.tbody.map((row) =>
+        row.filter((_, i) => i !== index)
+      );
+      return {
+        ...prev,
+        size_guide: { thead: newHead, tbody: newBody },
+      };
+    });
+  };
+
+  const deleteGuideRow = (index) => {
+    setForm((prev) => ({
       ...prev,
-      size_guide: { ...prev.size_guide, tbody: newBody },
-    };
-  });
-};
-
-const deleteGuideColumn = (index) => {
-  setForm((prev) => {
-    const newHead = prev.size_guide.thead.filter((_, i) => i !== index);
-    const newBody = prev.size_guide.tbody.map((row) =>
-      row.filter((_, i) => i !== index)
-    );
-    return {
-      ...prev,
-      size_guide: { thead: newHead, tbody: newBody },
-    };
-  });
-};
-
-const deleteGuideRow = (index) => {
-  setForm((prev) => ({
-    ...prev,
-    size_guide: {
-      ...prev.size_guide,
-      tbody: prev.size_guide.tbody.filter((_, i) => i !== index),
-    },
-  }));
-};
-
+      size_guide: {
+        ...prev.size_guide,
+        tbody: prev.size_guide.tbody.filter((_, i) => i !== index),
+      },
+    }));
+  };
 
   const submitProduct = async (e) => {
     e.preventDefault();
@@ -370,7 +368,7 @@ const deleteGuideRow = (index) => {
       detail_images: form.detail_images,
       specifications: form.specifications,
       sizes: form.size,
-      size_guide: form.size_guide
+      size_guide: form.size_guide,
     };
 
     try {
@@ -782,102 +780,100 @@ const deleteGuideRow = (index) => {
             </div>
             <div className="border-t border-gray-200 my-8"></div>
 
-<div className="space-y-4">
-  <label className="block text-sm font-semibold text-gray-900">
-    Size Guide (Opsional)
-  </label>
+            <div className="space-y-4">
+              <label className="block text-sm font-semibold text-gray-900">
+                Size Guide (Opsional)
+              </label>
 
- <div className="flex flex-wrap gap-3 items-center mt-2">
-  <input
-    type="text"
-    value={newGuideCol}
-    onChange={(e) => setNewGuideCol(e.target.value)}
-    placeholder="Nama kolom"
-    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
-  />
-  <button
-    type="button"
-    onClick={() => {
-      if (!newGuideCol.trim()) return;
-      setForm(prev => ({
-        ...prev,
-        size_guide: {
-          ...prev.size_guide,
-          thead: [...prev.size_guide.thead, newGuideCol.trim()],
-        },
-      }));
-      setNewGuideCol(""); 
-    }}
-    className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm"
-  >
-    + Tambah Kolom
-  </button>
-
-  <button
-    type="button"
-    onClick={addGuideRow}
-    className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm"
-  >
-    + Tambah Baris
-  </button>
-</div>
-
-
-  {form.size_guide.thead.length > 0 && (
-    <div className="overflow-x-auto border border-gray-200 rounded-lg mt-4">
-      <table className="min-w-full text-sm text-gray-700">
-        <thead className="bg-gray-100">
-          <tr>
-            {form.size_guide.thead.map((col, ci) => (
-              <th
-                key={ci}
-                className="px-2 py-2 font-medium text-gray-700 text-left"
-              >
-                {col}
+              <div className="flex flex-wrap gap-3 items-center mt-2">
+                <input
+                  type="text"
+                  value={newGuideCol}
+                  onChange={(e) => setNewGuideCol(e.target.value)}
+                  placeholder="Nama kolom"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+                />
                 <button
                   type="button"
-                  onClick={() => deleteGuideColumn(ci)}
-                  className="ml-2 text-red-500 hover:text-red-700"
+                  onClick={() => {
+                    if (!newGuideCol.trim()) return;
+                    setForm((prev) => ({
+                      ...prev,
+                      size_guide: {
+                        ...prev.size_guide,
+                        thead: [...prev.size_guide.thead, newGuideCol.trim()],
+                      },
+                    }));
+                    setNewGuideCol("");
+                  }}
+                  className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm"
                 >
-                  ×
+                  + Tambah Kolom
                 </button>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {form.size_guide.tbody.map((row, ri) => (
-            <tr key={ri} className="border-t border-gray-200">
-              {row.map((cell, ci) => (
-                <td key={ci} className="px-2 py-1">
-                  <input
-                    type="text"
-                    value={cell}
-                    onChange={(e) =>
-                      handleGuideCellChange(ri, ci, e.target.value)
-                    }
-                    placeholder="Isi data"
-                    className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm"
-                  />
-                </td>
-              ))}
-              <td className="px-2 py-1">
+
                 <button
                   type="button"
-                  onClick={() => deleteGuideRow(ri)}
-                  className="text-red-500 hover:text-red-700"
+                  onClick={addGuideRow}
+                  className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm"
                 >
-                  Hapus
+                  + Tambah Baris
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )}
-</div>
+              </div>
 
+              {form.size_guide.thead.length > 0 && (
+                <div className="overflow-x-auto border border-gray-200 rounded-lg mt-4">
+                  <table className="min-w-full text-sm text-gray-700">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        {form.size_guide.thead.map((col, ci) => (
+                          <th
+                            key={ci}
+                            className="px-2 py-2 font-medium text-gray-700 text-left"
+                          >
+                            {col}
+                            <button
+                              type="button"
+                              onClick={() => deleteGuideColumn(ci)}
+                              className="ml-2 text-red-500 hover:text-red-700"
+                            >
+                              ×
+                            </button>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {form.size_guide.tbody.map((row, ri) => (
+                        <tr key={ri} className="border-t border-gray-200">
+                          {row.map((cell, ci) => (
+                            <td key={ci} className="px-2 py-1">
+                              <input
+                                type="text"
+                                value={cell}
+                                onChange={(e) =>
+                                  handleGuideCellChange(ri, ci, e.target.value)
+                                }
+                                placeholder="Isi data"
+                                className="w-full border border-gray-300 rounded-md px-2 py-1 text-sm"
+                              />
+                            </td>
+                          ))}
+                          <td className="px-2 py-1">
+                            <button
+                              type="button"
+                              onClick={() => deleteGuideRow(ri)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              Hapus
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
 
             <div className="border-t border-gray-200 my-8"></div>
             <button

@@ -57,6 +57,8 @@ const EditProductPage = () => {
         point: product.point || "",
         variasi: product.variasi || "",
         warna: product.warna || "",
+        size_guide: product.size_guide || { thead: [], tbody: [] },
+
       };
       setForm(initialForm);
       setNewMainFile(null);
@@ -180,6 +182,68 @@ const EditProductPage = () => {
       setMainPreview(preview);
     }
   };
+
+  // === SIZE GUIDE ===
+const handleAddSizeGuideColumn = () => {
+  const colName = prompt("Masukkan nama kolom:");
+  if (!colName) return;
+  setForm((prev) => ({
+    ...prev,
+    size_guide: {
+      ...prev.size_guide,
+      thead: [...prev.size_guide.thead, colName],
+      tbody: prev.size_guide.tbody.map((row) => [...row, ""]),
+    },
+  }));
+};
+
+const handleAddSizeGuideRow = () => {
+  if (form.size_guide.thead.length === 0) {
+    alert("Tambahkan kolom terlebih dahulu!");
+    return;
+  }
+  const newRow = form.size_guide.thead.map(() => "");
+  setForm((prev) => ({
+    ...prev,
+    size_guide: {
+      ...prev.size_guide,
+      tbody: [...prev.size_guide.tbody, newRow],
+    },
+  }));
+};
+
+const handleSizeGuideChange = (rowIdx, colIdx, value) => {
+  setForm((prev) => {
+    const newBody = [...prev.size_guide.tbody];
+    newBody[rowIdx][colIdx] = value;
+    return {
+      ...prev,
+      size_guide: { ...prev.size_guide, tbody: newBody },
+    };
+  });
+};
+
+const handleRemoveSizeGuideColumn = (colIdx) => {
+  setForm((prev) => ({
+    ...prev,
+    size_guide: {
+      thead: prev.size_guide.thead.filter((_, i) => i !== colIdx),
+      tbody: prev.size_guide.tbody.map((row) =>
+        row.filter((_, i) => i !== colIdx)
+      ),
+    },
+  }));
+};
+
+const handleRemoveSizeGuideRow = (rowIdx) => {
+  setForm((prev) => ({
+    ...prev,
+    size_guide: {
+      ...prev.size_guide,
+      tbody: prev.size_guide.tbody.filter((_, i) => i !== rowIdx),
+    },
+  }));
+};
 
 
   const handleSubmit = async (e) => {
@@ -623,65 +687,89 @@ const EditProductPage = () => {
             )}
           </div>
 
-          {/* <div className="border p-4 rounded">
-            <h3 className="font-semibold mb-2">Size Guide</h3>
-            <table className="w-full border-collapse border border-gray-300">
-             <thead>
-  <tr>
-   {form.size_guide.thead.map((col, ci) => (
-  <th key={ci} className="border p-1">
-    {typeof col === "string" ? col : JSON.stringify(col)}
-  </th>
-))}
+          <div className="border border-gray-200 rounded-lg p-4">
+  <h3 className="font-semibold text-gray-800 mb-3">Size Guide</h3>
 
-    <th className="border p-1">Action</th>
-  </tr>
-</thead>
-<tbody>
-  {form.size_guide.tbody.map((row, ri) => (
-    <tr key={ri}>
-      {form.size_guide.thead.map((col, ci) => (
-        <td key={ci} className="border p-1">
-          <input
-            value={row[col]}
-            onChange={(e) =>
-              handleSizeGuideChange(ri, col, e.target.value)
-            }
-            className="w-full border p-1 rounded"
-          />
-        </td>
-      ))}
-      <td className="border p-1 text-center">
-        <button
-          type="button"
-          onClick={() => handleRemoveSizeGuideRow(ri)}
-          className="text-red-500 font-bold"
-        >
-          ×
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
+  {/* Jika belum ada size guide */}
+  {(!form.size_guide || !form.size_guide.thead) && (
+    <p className="text-gray-500 text-sm">
+      Belum ada data size guide. Tambahkan kolom terlebih dahulu.
+    </p>
+  )}
 
-            </table>
-            <div className="mt-2 flex gap-2">
-              <button
-                type="button"
-                onClick={handleAddSizeGuideRow}
-                className="bg-gray-200 px-3 py-1 rounded"
-              >
-                + Row
-              </button>
-              <button
-                type="button"
-                onClick={handleAddSizeGuideColumn}
-                className="bg-gray-200 px-3 py-1 rounded"
-              >
-                + Column
-              </button>
-            </div>
-          </div> */}
+  {/* Tabel size guide */}
+  {form.size_guide && form.size_guide.thead.length > 0 && (
+    <div className="overflow-auto">
+      <table className="min-w-full border border-gray-300 text-sm">
+        <thead>
+          <tr>
+            {form.size_guide.thead.map((col, ci) => (
+              <th key={ci} className="border border-gray-300 p-2 text-left">
+                <div className="flex justify-between items-center">
+                  <span>{col}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSizeGuideColumn(ci)}
+                    className="text-red-500 hover:text-red-700 ml-2"
+                  >
+                    ×
+                  </button>
+                </div>
+              </th>
+            ))}
+            <th className="border border-gray-300 p-2 text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {form.size_guide.tbody.map((row, ri) => (
+            <tr key={ri}>
+              {row.map((cell, ci) => (
+                <td key={ci} className="border border-gray-300 p-1">
+                  <input
+                    type="text"
+                    value={cell}
+                    onChange={(e) =>
+                      handleSizeGuideChange(ri, ci, e.target.value)
+                    }
+                    className="w-full border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                  />
+                </td>
+              ))}
+              <td className="border border-gray-300 text-center">
+                <button
+                  type="button"
+                  onClick={() => handleRemoveSizeGuideRow(ri)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ×
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+
+  {/* Tombol kontrol */}
+  <div className="mt-3 flex flex-wrap gap-2">
+    <button
+      type="button"
+      onClick={handleAddSizeGuideColumn}
+      className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm text-gray-800 border border-gray-300"
+    >
+      + Kolom
+    </button>
+    <button
+      type="button"
+      onClick={handleAddSizeGuideRow}
+      className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm text-gray-800 border border-gray-300"
+    >
+      + Baris
+    </button>
+  </div>
+</div>
+
 
           <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
             <button
