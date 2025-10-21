@@ -53,7 +53,7 @@ exports.login = (req, res) => {
     const token = jwt.sign(
       { id: user.id, role: user.role, email: user.email },
       JWT_SECRET,
-      { expiresIn: "60s" }
+      { expiresIn: "1d" }
     );
 
     res.json({

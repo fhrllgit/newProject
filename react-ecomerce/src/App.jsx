@@ -184,7 +184,7 @@ export default function App() {
               <AddProduct />
             </AdminRoute>
           } />
-          <Route path="/admin/products/edit/:id" element={
+          <Route path="/admin/dashboard/edit-product/:id" element={
             <AdminRoute>
               <EditProduct />
             </AdminRoute>
