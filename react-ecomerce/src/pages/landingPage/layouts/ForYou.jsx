@@ -87,9 +87,6 @@ const goToSlide = (index) => {
     <>
       <div className="flex flex-col">
         <div id="Service" className="w-full h-screen mt-16 px-14 py-8 bg-gray-50">
-          <h1 className="font-semibold text-2xl  text-center text-black mb-3 tracking-[0.3em]">
-            SERVICE
-          </h1>
           <div className="flex items-center justify-center h-full relative">
             <button 
               onClick={goToPrevious}

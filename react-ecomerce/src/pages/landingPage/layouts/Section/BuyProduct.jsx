@@ -41,7 +41,9 @@ export default function BuyProduct() {
       ? data[0] ?? null
       : data
     : null;
-  const product = initial ?? fetchedProduct;
+  const product = fetchedProduct
+  ? { ...initial, ...fetchedProduct } // fetchedProduct akan menimpa field kosong
+  : initial;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const scrollRef = useRef(null);
   const [selected, setSelected] = useState("");
@@ -72,7 +74,9 @@ export default function BuyProduct() {
   if (!product) return <div className="p-6">Product not found</div>;
 
   const images = Array.isArray(product.detail_images)
-    ? product.detail_images.filter((img) => img && img !== product.Image)
+    ? product.detail_images.filter(img => img && img !== product.Image)
+    : product.Image
+    ? [product.Image]
     : [];
 
   const formatToIDR = (number) => {
@@ -654,7 +658,7 @@ export default function BuyProduct() {
               <div className="flex gap-3 text-sm mt-4 max-w-md flex-wrap">
                 {size.map((item, i) => (
                   <div
-                    key={item.value ?? i}
+                    key={`${item.value}-${i}`}
                     onClick={() => {
                       setSelected(String(item.value));
                       setOpen(false);
@@ -667,7 +671,6 @@ export default function BuyProduct() {
                     }`}
                   >
                     {item.value}
-                    {""}
                   </div>
                 ))}
               </div>
@@ -855,7 +858,7 @@ export default function BuyProduct() {
               <div className="flex gap-3 text-sm mt-4 flex-wrap">
                 {size.map((item, i) => (
                   <div
-                    key={item.value ?? i}
+                    key={`${item.value}-${i}`}
                     onClick={() => {
                       setSelected(String(item.value));
                       setOpen(false);
