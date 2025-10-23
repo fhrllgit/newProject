@@ -43,8 +43,8 @@ export default function BuyProduct() {
       : data
     : null;
   const product = fetchedProduct
-  ? { ...initial, ...fetchedProduct } // fetchedProduct akan menimpa field kosong
-  : initial;
+    ? { ...initial, ...fetchedProduct } // fetchedProduct akan menimpa field kosong
+    : initial;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const scrollRef = useRef(null);
   const [selected, setSelected] = useState("");
@@ -52,7 +52,7 @@ export default function BuyProduct() {
   const [size, setSize] = useState([]);
   const [selectedType, setSelectedType] = useState(size[0]?.type);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const { addToCart } = useCart(); 
+  const { addToCart } = useCart();
   const { totalItems } = useCart();
 
   useEffect(() => {
@@ -61,7 +61,6 @@ export default function BuyProduct() {
 
   useEffect(() => {
     setSize(Array.isArray(product?.size) ? product.size : []);
-    setSelected("");
   }, [product]);
 
   useEffect(() => {
@@ -77,7 +76,7 @@ export default function BuyProduct() {
   if (!product) return <div className="p-6">Product not found</div>;
 
   const images = Array.isArray(product.detail_images)
-    ? product.detail_images.filter(img => img && img !== product.Image)
+    ? product.detail_images.filter((img) => img && img !== product.Image)
     : product.Image
     ? [product.Image]
     : [];
@@ -142,7 +141,7 @@ export default function BuyProduct() {
   };
 
   // card
-    const handleAddToCart = () => {
+  const handleAddToCart = () => {
     if (!selected) {
       alert("Silakan pilih ukuran terlebih dahulu!");
       return;
@@ -150,7 +149,6 @@ export default function BuyProduct() {
     addToCart(product, selected);
     alert("Produk berhasil ditambahkan ke keranjang!");
   };
-
 
   return (
     <div>
@@ -242,18 +240,21 @@ export default function BuyProduct() {
                       strokeWidth={0.5}
                       className="cursor-pointer hover:text-red-500 transition-colors"
                     />
-                    <div onClick={() => navigate("/keranjang")} className="relative">
-      <HiOutlineShoppingBag
-        size={23}
-        strokeWidth={1.5}
-        className="cursor-pointer hover:text-blue-600 transition-colors"
-      />
-      {totalItems > 0 && (
-        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-          {totalItems}
-        </span>
-      )}
-    </div>
+                    <div
+                      onClick={() => navigate("/keranjang")}
+                      className="relative"
+                    >
+                      <HiOutlineShoppingBag
+                        size={23}
+                        strokeWidth={1.5}
+                        className="cursor-pointer hover:text-blue-600 transition-colors"
+                      />
+                      {totalItems > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                          {totalItems}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -416,7 +417,7 @@ export default function BuyProduct() {
             </Link>
           </div>
 
-            <div className="mt-5 px-8 flex flex-col lg:hidden">
+          <div className="mt-5 px-8 flex flex-col lg:hidden">
             <p className="text-[11px] font-semibold tracking-widest">
               PILIH SIZE
             </p>
@@ -425,7 +426,7 @@ export default function BuyProduct() {
                 <button className="font-semibold text-md">
                   Ukuran{" "}
                   <span className="text-sm text-[#595959] font-medium">
-                    {selectedType}: {selected}
+                    Type: {selected?.type} | Size: {selected?.value}
                   </span>
                 </button>
                 <div
@@ -515,12 +516,12 @@ export default function BuyProduct() {
                   <div
                     key={`${item.value}-${i}`}
                     onClick={() => {
-                      setSelected(String(item.value));
+                      setSelected(item);
                       setOpen(false);
                     }}
                     className={`px-5 py-1 border rounded-lg cursor-pointer transition-all duration-200
                     ${
-                      selected === String(item.value)
+                      selected?.value === item.value
                         ? "bg-black text-white border-black"
                         : "bg-white text-black border-black hover:bg-[#f1f0f064]"
                     }`}
@@ -530,42 +531,42 @@ export default function BuyProduct() {
                 ))}
               </div>
 
-                <div className="flex items-center gap-3 mt-5">
+              <div className="flex items-center gap-3 mt-5">
                 <div className="border flex-1 pb-0.5 ">
-                  <div
-                    className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5">
-                    <p className="text-xs font-bold text-white tracking-[0.2em]">TAMBAH KE KERANJANG</p>
-                    <FaArrowRightLong className="text-white" size={20}/>
+                  <div className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5">
+                    <p className="text-xs font-bold text-white tracking-[0.2em]">
+                      TAMBAH KE KERANJANG
+                    </p>
+                    <FaArrowRightLong className="text-white" size={20} />
                   </div>
                 </div>
                 <div className="p-2 border cursor-pointer items-center w-12 h-12 justify-center flex">
-                  <CiHeart size={30}/>
+                  <CiHeart size={30} />
                 </div>
               </div>
 
-                  <div className="text-gray-700">
-              <div className="mt-4 text-xs flex items-center gap-2">
-                <TbTruckDelivery size={20} />
-                <span>
-                  <button className="underline cursor-pointer hover:text-black">
-                    Learn More
-                  </button>
-                  <p>Gratis Ongkir</p>
-                </span>
+              <div className="text-gray-700">
+                <div className="mt-4 text-xs flex items-center gap-2">
+                  <TbTruckDelivery size={20} />
+                  <span>
+                    <button className="underline cursor-pointer hover:text-black">
+                      Learn More
+                    </button>
+                    <p>Gratis Ongkir</p>
+                  </span>
+                </div>
+                <div className="mt-4 text-xs flex items-center gap-2">
+                  <TbTruckDelivery size={20} />
+                  <span>
+                    <button className="underline cursor-pointer hover:text-black">
+                      Learn More
+                    </button>
+                    <p>refund dengan mudah</p>
+                  </span>
+                </div>
               </div>
-              <div className="mt-4 text-xs flex items-center gap-2">
-                <TbTruckDelivery size={20} />
-                <span>
-                  <button className="underline cursor-pointer hover:text-black">
-                    Learn More
-                  </button>
-                  <p>refund dengan mudah</p>
-                </span>
-              </div>
-            </div>
             </div>
           </div>
-
 
           <Element name="deskripsi" className="px-8 mt-8 relative">
             <div className="flex flex-col space-y-2">
@@ -608,7 +609,6 @@ export default function BuyProduct() {
           </p>
           <span className="font-semibold text-md">
             {" "}
-            
             {formatToIDR(product.price)}
             {product.discount ? (
               <span className="ml-3 text-sm text-red-500">
@@ -625,7 +625,7 @@ export default function BuyProduct() {
                 <button className="font-semibold text-md">
                   Ukuran{" "}
                   <span className="text-sm text-[#595959] font-medium">
-                    {selectedType}: {selected}
+                    {selected?.type} | {selected?.value}
                   </span>
                 </button>
                 <div
@@ -715,12 +715,12 @@ export default function BuyProduct() {
                   <div
                     key={`${item.value}-${i}`}
                     onClick={() => {
-                      setSelected(String(item.value));
+                      setSelected(item);
                       setOpen(false);
                     }}
                     className={`px-5 py-1 border rounded-lg cursor-pointer transition-all duration-200
                     ${
-                      selected === String(item.value)
+                      selected?.value === item.value
                         ? "bg-black text-white border-black"
                         : "bg-white text-black border-black hover:bg-[#f1f0f064]"
                     }`}
@@ -731,43 +731,43 @@ export default function BuyProduct() {
                 ))}
               </div>
 
-               <div className="flex items-center gap-3 mt-5">
-      <div className="border flex-1 pb-0.5 ">
-        <div
-          onClick={handleAddToCart}
-          className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5"
-        >
-          <p className="text-xs font-bold text-white tracking-[0.2em]">
-            TAMBAH KE KERANJANG
-          </p>
-          <FaArrowRightLong className="text-white" size={20} />
-        </div>
-      </div>
-      <div className="p-2 border cursor-pointer items-center w-12 h-12 justify-center flex">
-        <CiHeart size={30} />
-      </div>
-    </div>
+              <div className="flex items-center gap-3 mt-5">
+                <div className="border flex-1 pb-0.5 ">
+                  <div
+                    onClick={handleAddToCart}
+                    className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5"
+                  >
+                    <p className="text-xs font-bold text-white tracking-[0.2em]">
+                      TAMBAH KE KERANJANG
+                    </p>
+                    <FaArrowRightLong className="text-white" size={20} />
+                  </div>
+                </div>
+                <div className="p-2 border cursor-pointer items-center w-12 h-12 justify-center flex">
+                  <CiHeart size={30} />
+                </div>
+              </div>
 
-                  <div className="text-gray-700">
-              <div className="mt-4 text-xs flex items-center gap-2">
-                <TbTruckDelivery size={20} />
-                <span>
-                  <button className="underline cursor-pointer hover:text-black">
-                    Learn More
-                  </button>
-                  <p>Gratis Ongkir</p>
-                </span>
+              <div className="text-gray-700">
+                <div className="mt-4 text-xs flex items-center gap-2">
+                  <TbTruckDelivery size={20} />
+                  <span>
+                    <button className="underline cursor-pointer hover:text-black">
+                      Learn More
+                    </button>
+                    <p>Gratis Ongkir</p>
+                  </span>
+                </div>
+                <div className="mt-4 text-xs flex items-center gap-2">
+                  <TbTruckDelivery size={20} />
+                  <span>
+                    <button className="underline cursor-pointer hover:text-black">
+                      Learn More
+                    </button>
+                    <p>refund dengan mudah</p>
+                  </span>
+                </div>
               </div>
-              <div className="mt-4 text-xs flex items-center gap-2">
-                <TbTruckDelivery size={20} />
-                <span>
-                  <button className="underline cursor-pointer hover:text-black">
-                    Learn More
-                  </button>
-                  <p>refund dengan mudah</p>
-                </span>
-              </div>
-            </div>
             </div>
           </div>
         </section>

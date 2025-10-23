@@ -3,7 +3,7 @@ import { AuthProvider } from "./context/AuthContext";
 
 // pages user
 import Home from "./pages/Home";
-import Checkout from "./pages/Checkout";
+import Checkout from "./pages/checkout/Checkout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 

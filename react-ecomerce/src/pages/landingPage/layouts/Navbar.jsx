@@ -5,7 +5,6 @@ import { LiaShoppingBagSolid } from "react-icons/lia";
 import { TbHeart } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import SearchPopUp from "../layouts/fixtures/SearchPopUp";
-<<<<<<< Updated upstream
 import logo from "../../../assets/img/logo.jpg"
 
 const STORAGE_KEY = "ohmay_favorites";
@@ -25,9 +24,6 @@ const writeFavorites = (arr) => {
     window.dispatchEvent(new CustomEvent("favorites-updated", { detail: arr }));
   } catch {}
 };
-=======
-import { useCart } from "../../../context/cartContext";
->>>>>>> Stashed changes
 
 function Navbar() {
   const navigate = useNavigate();
@@ -36,7 +32,6 @@ function Navbar() {
   const [query, setQuery] = useState("");
   const [showFavPopup, setShowFavPopup] = useState(false);
   const lastScrollY = useRef(0);
-<<<<<<< Updated upstream
   const [favorites, setFavorites] = useState([]);
 
   // read favorites on mount
@@ -70,10 +65,6 @@ function Navbar() {
     navigate(`/product/${id}`, { state: item });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-=======
-  const { totalItems } = useCart();
-  
->>>>>>> Stashed changes
 
   // memunculkan dan menyembunyikan navbar saat scroll
   useEffect(() => {
@@ -221,7 +212,6 @@ function Navbar() {
                   )}
                 </button>
               </span>
-<<<<<<< Updated upstream
 
               <span>
                 <LiaShoppingBagSolid />
@@ -230,22 +220,6 @@ function Navbar() {
               <span className="text-sm">
                 <a href="">login</a>
               </span>
-=======
-          
-
-                                 <div className="relative">
-                    <LiaShoppingBagSolid
-                      size={23}
-                      strokeWidth={1.5}
-                      className="cursor-pointer hover:text-blue-600 transition-colors"
-                    />
-                    {totalItems > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                        {totalItems}
-                      </span>
-                    )}
-                  </div>
->>>>>>> Stashed changes
             </div>
           </div>
         </div>

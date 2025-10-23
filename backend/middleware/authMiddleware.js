@@ -9,6 +9,7 @@ exports.verifyToken = (req, res, next) => {
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ message: "Token tidak valid" });
+    console.log("🔑 decoded user:", user);
     req.user = user;
     next();
   });
@@ -25,3 +26,4 @@ exports.isUser = (req, res, next) => {
     return res.status(403).json({ message: "Akses ditolak, bukan user" });
   next();
 };
+

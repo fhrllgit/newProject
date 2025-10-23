@@ -10,34 +10,100 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
-  const addToCart = (product, size) => {
-    const existing = cart.find(
-      (item) => item.id === product.id && item.size === size
-    );
-    if (existing) {
-      setCart(
-        cart.map((item) =>
-          item.id === product.id && item.size === size
-            ? { ...item, qty: item.qty + 1 }
-            : item
-        )
-      );
-    } else {
-      setCart([...cart, { ...product, size, qty: 1 }]);
-    }
-  };
-  const removeFromCart = (id, size) => {
-    setCart(cart.filter((item) => !(item.id === id && item.size === size)));
-  };
-const updateQuantity = (id, size, qty) => {
-  setCart(
-    cart.map((item) =>
-      item.id === id && item.size === size
-        ? { ...item, qty: Number(qty) }
-        : item
-    )
+  // const addToCart = (product, size) => {
+  //   const existing = cart.find(
+  //     (item) => item.id === product.id && item.size === size
+  //   );
+  //   if (existing) {
+  //     setCart(
+  //       cart.map((item) =>
+  //         item.id === product.id && item.size === size
+  //           ? { ...item, qty: item.qty + 1 }
+  //           : item
+  //       )
+  //     );
+  //   } else {
+  //     setCart([...cart, { ...product, size, qty: 1 }]);
+  //   }
+  // };
+
+//   const addToCart = (product, size) => {
+//   // cari item yang sama berdasarkan id produk dan ukuran (berdasarkan value)
+//   const existing = cart.find(
+//     (item) => item.id === product.id && item.size?.value === size.value
+//   );
+
+//   if (existing) {
+//     // kalau sudah ada, tambahkan quantity-nya
+//     setCart(
+//       cart.map((item) =>
+//         item.id === product.id && item.size?.value === size.value
+//           ? { ...item, qty: item.qty + 1 }
+//           : item
+//       )
+//     );
+//   } else {
+//     // kalau belum ada, tambahkan produk baru
+//     // setCart([...cart, { ...product, size, qty: 1 }]);
+//     // setCart([...cart, { ...product, size, qty: 1 }]);
+
+//     setCart([...cart, { ...product, size, qty: 1 }]);
+//   }
+// };
+
+// Contoh dari CartContext.js
+const addToCart = (product, sizeObj) => {
+  console.log("sizeObj yang dikirim:", sizeObj);
+  const existing = cart.find(
+    (item) => item.id === product.id && item.size?.value === sizeObj.value
   );
+
+  if (existing) {
+    setCart(
+      cart.map((item) =>
+        item.id === product.id && item.size?.value === sizeObj.value
+          ? { ...item, qty: item.qty + 1 }
+          : item
+      )
+    );
+  } else {
+    setCart([...cart, { ...product, size: sizeObj, qty: 1 }]);
+  }
 };
+
+
+
+
+
+  // const removeFromCart = (id, size) => {
+  //   setCart(cart.filter((item) => !(item.id === id && item.size === size)));
+  // };
+
+// const updateQuantity = (id, size, qty) => {
+//   setCart(
+//     cart.map((item) =>
+//       item.id === id && item.size === size
+//         ? { ...item, qty: Number(qty) }
+//         : item
+//     )
+//   );
+// };
+const removeFromCart = (id, sizeObj) => {
+  setCart(cart.filter(
+    item => !(item.id === id && item.size.value === sizeObj.value)
+  ));
+};
+
+const updateQuantity = (id, sizeObj, qty) => {
+  setCart(cart.map(item => 
+    item.id === id && item.size.value === sizeObj.value
+      ? { ...item, qty: Number(qty) }
+      : item
+  ));
+};
+
+
+
 
   const clearCart = () => {
     setCart([]);
