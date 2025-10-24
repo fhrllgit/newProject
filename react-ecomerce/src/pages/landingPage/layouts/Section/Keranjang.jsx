@@ -51,23 +51,47 @@ const totalDiscount = cart.reduce((acc, item) => {
     setOpenQtyItems((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // const handleCheckout = () => {
+  //   setLoading(true)
+  //   const checkoutData = {
+  //     items: cart,
+  //     totalNormal,
+  //     totalDiscount,
+  //     totalAfterDiscount,
+  //   };
+  //   console.log(checkoutData);
+  //   localStorage.setItem("checkoutData", JSON.stringify(checkoutData));
+  //   setTimeout(() => {
+  //     setLoading(false)
+  //     navigate("/checkout");
+  //   }, 700);
+  // };
+
   const handleCheckout = () => {
-    setLoading(true)
-    const checkoutData = {
-      items: cart,
-      totalNormal,
-      totalDiscount,
-      totalAfterDiscount,
-    };
-    console.log(checkoutData);
-    localStorage.setItem("checkoutData", JSON.stringify(checkoutData));
-    setTimeout(() => {
-      setLoading(false)
-      navigate("/checkout");
-    }, 700);
+  if (cart.length === 0) {
+    alert("Keranjang kamu masih kosong!");
+    return;
+  }
+
+  setLoading(true);
+
+  // Simpan data keranjang ke localStorage
+  const checkoutData = {
+    items: cart, // semua produk yang ada di keranjang
+    totalNormal,
+    totalDiscount,
+    totalAfterDiscount,
   };
 
-  // const type = item.size?.[0]?.type;
+  localStorage.setItem("checkoutData", JSON.stringify(checkoutData));
+
+  setTimeout(() => {
+    setLoading(false);
+    navigate("/checkout");
+  }, 700);
+};
+
+
 
   return (
     <>
@@ -405,7 +429,7 @@ const totalDiscount = cart.reduce((acc, item) => {
               <div className="mt-6">
                 <h1 className="font-bold text-lg sm:text-xl">BUTUH BANTUAN?</h1>
                 <div className="flex flex-col space-y-1.5">
-                  <p className="text-xs sm:text-sm tracking-wider cursor-pointer w-max underline hover:text-white hover:bg-black font-light">
+                  <p onClick={() => navigate("/checkout")} className="text-xs sm:text-sm tracking-wider cursor-pointer w-max underline hover:text-white hover:bg-black font-light">
                     Order
                   </p>
                   <p className="text-xs sm:text-sm tracking-wider cursor-pointer w-max underline hover:text-white hover:bg-black font-light">
@@ -480,7 +504,7 @@ const totalDiscount = cart.reduce((acc, item) => {
                     BUTUH BANTUAN?
                   </h1>
                   <div className="flex flex-col space-y-1.5">
-                    <p className="text-xs sm:text-sm tracking-wider cursor-pointer w-max underline hover:text-white hover:bg-black font-light">
+                    <p onClick={() => navigate("/checkout")} className="text-xs sm:text-sm tracking-wider cursor-pointer w-max underline hover:text-white hover:bg-black font-light">
                       Order
                     </p>
                     <p className="text-xs sm:text-sm tracking-wider cursor-pointer w-max underline hover:text-white hover:bg-black font-light">

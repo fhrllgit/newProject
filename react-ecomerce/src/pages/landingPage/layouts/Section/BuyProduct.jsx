@@ -355,9 +355,15 @@ export default function BuyProduct() {
                     <span className="text-xs font-bold"></span>
                     {product.variasi}
                   </p>
+
                   <span className="font-semibold text-sm">
                     {" "}
                     {formatToIDR(product.price)}
+                    {product.discount ? (
+                      <span className="ml-3 text-sm text-red-500">
+                        - Rp {product.discount}
+                      </span>
+                    ) : null}
                   </span>
                 </div>
               </div>
@@ -533,7 +539,7 @@ export default function BuyProduct() {
 
               <div className="flex items-center gap-3 mt-5">
                 <div className="border flex-1 pb-0.5 ">
-                  <div className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5">
+                  <div onClick={handleAddToCart} className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5">
                     <p className="text-xs font-bold text-white tracking-[0.2em]">
                       TAMBAH KE KERANJANG
                     </p>

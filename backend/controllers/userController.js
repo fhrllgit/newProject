@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken")
 const User = require("../models/userModel")
 
 const JWT_SECRET = "secret123"; 
+let tokenBlacklist = [];
 
 exports.register = (req, res) => {
   const { first_name, last_name, email, password, confirm_password } = req.body;
@@ -51,7 +52,7 @@ exports.login = (req, res) => {
       return res.status(401).json({ message: "Password salah" });
 
     const token = jwt.sign(
-      { id: user.id, role: user.role, email: user.email },
+      { id: user.id, role: user.role, email: user.email, first_name: user.first_name },
       JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -68,4 +69,22 @@ exports.login = (req, res) => {
       },
     });
   });
+};
+
+
+exports.logout = (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(400).json({ message: "Token tidak ditemukan" });
+  }
+
+  const token = authHeader.split(" ")[1];
+  tokenBlacklist.push(token);
+
+  res.json({ message: "Logout berhasil, token diblacklist" });
+};
+
+exports.isTokenBlacklisted = (token) => {
+  return tokenBlacklist.includes(token);
 };

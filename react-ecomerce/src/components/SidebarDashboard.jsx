@@ -13,6 +13,7 @@ import { FiSettings } from "react-icons/fi";
 import { TbLogout2 } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
 import RightDashboard from "./Dashboard/RightAdminDashboard";
+import { BsCart } from "react-icons/bs";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const Dashboard = () => {
   const menuItems = [
     { name: "Dashboard", icons: <LiaHomeSolid />, path: "/admin/dashboard" },
     { name: "Produk", icons: <FiBox />, path: "/admin/products" },
+    { name: "Order", icons: <BsCart />, path: "/admin/Order" },
     { name: "Kategori", icons: <FiTag />, path: "/admin/categories" },
     { name: "User", icons: <FiUser />, path: "/admin" },
     { name: "Transaksi", icons: <FiCreditCard />, path: "/admin" },
