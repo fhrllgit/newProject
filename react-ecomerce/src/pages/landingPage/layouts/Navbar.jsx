@@ -1,62 +1,34 @@
 import { useEffect, useRef, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import { IoMdClose } from "react-icons/io";
-import { LiaShoppingBagSolid } from "react-icons/lia";
 import { TbHeart } from "react-icons/tb";
+import { AiOutlineUser } from "react-icons/ai";
+import { CiLogin } from "react-icons/ci";
+import {
+  HiOutlineShoppingBag,
+  HiOutlineMenu,
+  HiOutlineX,
+} from "react-icons/hi";
+import { BsTruck } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import SearchPopUp from "../layouts/fixtures/SearchPopUp";
-import logo from "../../../assets/img/logo.jpg"
+import { useFavorites } from "../../../hooks/useFavorites";
+import { useCart } from "../../../context/cartContext";
+import logo from "../../../img/logo.png";
 
-const STORAGE_KEY = "ohmay_favorites";
-
-const readFavorites = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-};
-
-const writeFavorites = (arr) => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-    window.dispatchEvent(new CustomEvent("favorites-updated", { detail: arr }));
-  } catch {}
-};
-
-function Navbar() {
+export default function Navbar() {
   const navigate = useNavigate();
-  const [showNav, setShowNav] = useState(true);
   const [showSearch, setShowsearch] = useState(false);
   const [query, setQuery] = useState("");
+  const [showNav, setShowNav] = useState(true);
   const [showFavPopup, setShowFavPopup] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
-  const [favorites, setFavorites] = useState([]);
+  const { favorites, removeFavorite, clearFavorites } = useFavorites();
+  const { totalItems } = useCart();
 
-  // read favorites on mount
-  useEffect(() => {
-    setFavorites(readFavorites());
-  }, []);
-
-  // listen to favorites-updated events (optional other components can dispatch)
-  useEffect(() => {
-    const handler = (e) => {
-      setFavorites(Array.isArray(e.detail) ? e.detail : readFavorites());
-    };
-    window.addEventListener("favorites-updated", handler);
-    return () => window.removeEventListener("favorites-updated", handler);
-  }, []);
-
-  // popup favorite handlers
   const toggleFavPopup = () => setShowFavPopup((s) => !s);
   const closeFavPopup = () => setShowFavPopup(false);
-
-  const onRemoveFavorite = (id) => {
-    const next = favorites.filter((f) => (f.id ?? f._id) !== id);
-    writeFavorites(next);
-    setFavorites(next);
-  };
 
   const onOpenFavoriteItem = (item) => {
     const id = item?.id ?? item?._id;
@@ -66,181 +38,289 @@ function Navbar() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // memunculkan dan menyembunyikan navbar saat scroll
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY.current) {
-        setShowNav(false);
-      } else {
-        setShowNav(true);
-      }
-      lastScrollY.current = currentScrollY;
+      const current = window.scrollY;
+      setShowNav(current < lastScrollY.current);
+      lastScrollY.current = current;
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // close search when clicking outside
   useEffect(() => {
     const handleClick = (e) => {
       if (!e.target.closest("#search-popup") && !e.target.closest("#search")) {
-        setShowSearch(false);
+        setShowsearch(false);
       }
     };
     if (showSearch) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showSearch]);
 
-  const goToCategory = (slug) => {
+  const goToCategory = (slug) =>
     navigate(`/category/${slug}`, { state: { fromNav: true } });
-  };
+
+  const [isSticky, setIsSticky] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => setIsSticky(window.scrollY > 45);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <main className="container">
-      <header
-        className={`p-4 w-screen fixed left-0 z-50 transition-all duration-500 ease-in-out bg-white ${showNav ? "translate-y-0 border-b border-gray-300" : "-translate-y-full"} ${showSearch ? "translate-y-0" : "-translate-y-full"}`}
-      >
-        <div className="flex justify-between items-center px-14 py-1 bg-transparent">
-          {/* product method */}
-          <div className="flex gap-4 text-sm tracking-wider">
-            <div className="flex flex-col gap-8 items-center">
-              <div className="flex gap-4 text-[13px] tracking-[0.1em]">
-                <button
-                  type="button"
-                  onClick={() => goToCategory("pria")}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
-                >
-                  <span className="text-hoverBefore">PRIA</span>
-                  <span className="text-hoverAfter">PRIA</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => goToCategory("wanita")}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
-                >
-                  <span className="text-hoverBefore">WANITA</span>
-                  <span className="text-hoverAfter">WANITA</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => goToCategory("anak")}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
-                >
-                  <span className="text-hoverBefore">ANAK</span>
-                  <span className="text-hoverAfter">ANAK</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => goToCategory("luxury")}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
-                >
-                  <span className="text-hoverBefore">LUXURY</span>
-                  <span className="text-hoverAfter">LUXURY</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => goToCategory("promo")}
-                  className="relative cursor-pointer flex flex-col overflow-hidden group bg-transparent border-0 p-0"
-                >
-                  <span className="text-hoverBefore">PROMO</span>
-                  <span className="text-hoverAfter">PROMO</span>
-                </button>
-              </div>
-              <h1 className="absolute font-bold text-lg tracking-[0.2em] top-15 flex flex-col overflow-hidden" />
+    <>
+      <div className="w-full">
+        {/* navbar desktop */}
+        <div className="block w-full">
+          {/* cta hanya tampil di desktop */}
+          <div className="hidden lg:flex justify-center items-center gap-10 py-2.5 bg-[#d1d1d155] w-full overflow-hidden">
+            <div className="flex items-center gap-2">
+              <BsTruck size={20} />
+              <span className="text-xs tracking-tight">
+                GRATIS ONGKIR UNTUK PENGGUNA PERTAMA
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BsTruck size={20} />
+              <span className="text-xs tracking-tight">
+                GRATIS ONGKIR UNTUK PENGGUNA PERTAMA
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BsTruck size={20} />
+              <span className="text-xs tracking-tight">
+                GRATIS ONGKIR UNTUK PENGGUNA PERTAMA
+              </span>
             </div>
           </div>
 
-          {/* logo */}
-          <a href="/" className="overflow-hidden max-h-8 flex items-center">
-            <img src={logo} alt="FSDR" className="block max-h-20 md:hidden" />
-            <span className="font-bold text-xl tracking-wider hidden md:block">FSDR</span>
-          </a>
+          {/* sticky */}
+          <div
+            className={`w-full bg-white border-b-2 border-b-[#e1e1e1a5] transition-all duration-500 ease-in-out ${
+              isSticky ? "fixed top-0 left-0 z-50" : "relative"
+            }`}
+          >
+            {/* desktop */}
+            <div className="hidden lg:block w-full px-8 lg:px-16 xl:px-24 py-2">
+              <div className="flex items-center justify-between w-full">
+                <div 
+                className="flex-shrink-0">
+                  <img
+                    className="h-10 w-auto object-contain"
+                    src={logo}
+                    alt="Logo"
+                  />
+                </div>
 
-          {/* search cart method */}
-          <div className={`flex flex-col gap-8 items-center`}>
-            <div className="flex items-center gap-4 text-xl cursor-pointer">
-              <span className="relative">
-                <input
-                  id="search"
-                  type="text"
-                  placeholder="Cari"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  className="w-60 px-4 py-1.5 ring-0 bg-gray-100 active:ring-0 focus:ring-0 focus:outline-none text-sm placeholder:font-thin placeholder:text-gray-600"
-                  onClick={() => setShowsearch(true)}
-                  onFocus={() => setShowsearch(true)}
-                />
-                {showSearch ? (
+                <div className="flex items-center gap-6">
+                  {/* search */}
+                  <div
+                    id="search"
+                    className="border-b w-50 border-[#c3c3c3] cursor-pointer pb-1"
+                  >
+                    <div className="flex items-center gap-2">
+                      {showSearch || query ? (
+                        <IoMdClose
+                          size={18}
+                          className="text-gray-500 cursor-pointer hover:text-red-500 transition-colors"
+                          onClick={() => {
+                            setQuery("");
+                            setShowsearch(false);
+                          }}
+                        />
+                      ) : (
+                        <FiSearch
+                          size={16}
+                          className="text-gray-500 cursor-pointer"
+                          onClick={() => setShowsearch(true)}
+                        />
+                      )}
+
+                      <input
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Cari produk..."
+                        className="text-xs font-light text-[#939393] focus:outline-none bg-transparent flex-1"
+                        onFocus={() => setShowsearch(true)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* login */}
+                  <div className="relative group">
+                    <div className="flex items-center gap-1 cursor-pointer">
+                      <AiOutlineUser size={20} strokeWidth={2} />
+                      <span className="text-sm font-extrabold whitespace-nowrap">
+                        Masuk / Daftar
+                      </span>
+                    </div>
+
+                    {/* hover menu */}
+                    <div className="absolute right-0 mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg rounded-xl bg-white z-40">
+                      <div className="p-3">
+                        <div className="flex items-center gap-3">
+                          <CiLogin size={18} strokeWidth={0.5} />
+                          <div className="text-sm flex items-center gap-1 font-light">
+                            <button
+                              onClick={() => navigate("/login")}
+                              className="hover:underline cursor-pointer"
+                            >
+                              Masuk
+                            </button>
+                            <span>/</span>
+                            <button
+                              onClick={() => navigate("/register")}
+                              className="hover:underline cursor-pointer"
+                            >
+                              Daftar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ikon kanan */}
+                  <div className="flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => toggleFavPopup()}
+                      aria-label="Favorit"
+                      className="relative p-1"
+                    >
+                      <TbHeart size={20} />
+                      {favorites.length > 0 && (
+                        <span className="absolute -top-1 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">
+                          {favorites.length}
+                        </span>
+                      )}
+                    </button>
+
+                    <div
+                      onClick={() => navigate("/keranjang")}
+                      className="relative"
+                    >
+                      <HiOutlineShoppingBag
+                        size={23}
+                        strokeWidth={1.5}
+                        className="cursor-pointer hover:text-blue-600 transition-colors"
+                      />
+                      {totalItems > 0 && (
+                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                          {totalItems}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* kategori */}
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <div className="flex gap-8">
                   <button
-                    type="button"
-                    className="absolute right-[4px] top-[8px] text-gray-600"
-                    onClick={() => {
-                      setShowsearch(false);
-                    }}
+                    onClick={() => goToCategory("pria")}
+                    className="text-sm cursor-pointer font-extrabold hover:underline transition-all"
                   >
-                    <IoMdClose size={20} />
+                    PRIA
                   </button>
-                ) : (
-                  <label
-                    htmlFor="search"
-                    className="absolute right-[4px] top-[8px]"
-                    onClick={() => setShowsearch(true)}
+                  <button
+                    onClick={() => goToCategory("wanita")}
+                    className="text-sm cursor-pointer font-extrabold hover:underline transition-all"
                   >
-                    <FiSearch size={18} />
-                  </label>
-                )}
-              </span>
+                    WANITA
+                  </button>
+                  <button
+                    onClick={() => goToCategory("anak")}
+                    className="text-sm cursor-pointer font-extrabold hover:underline transition-all"
+                  >
+                    ANAK
+                  </button>
+                  <button
+                    onClick={() => goToCategory("luxury")}
+                    className="text-sm cursor-pointer font-extrabold hover:underline transition-all"
+                  >
+                    LUXURY
+                  </button>
+                </div>
+              </div>
+            </div>
 
-              {/* Heart with badge */}
-              <span className="relative">
+            {/* tablet & mobile modern bar */}
+            <div className="flex lg:hidden items-center justify-between px-4 py-3 border-b border-gray-200 bg-white shadow-sm">
+              <img
+                src={logo}
+                alt="Logo"
+                className="h-8 w-auto object-contain"
+              />
+
+              {/* ikon kanan */}
+              <div className="flex items-center gap-4">
+                <FiSearch
+                  size={22}
+                  className="text-gray-700 cursor-pointer hover:text-indigo-600 transition"
+                  onClick={() => setShowsearch(true)}
+                />
                 <button
                   type="button"
-                  onClick={toggleFavPopup}
-                  aria-label="Favorit"
-                  className="relative p-1"
+                  onClick={() => toggleFavPopup()}
+                  className="relative"
                 >
-                  <TbHeart size={20} />
+                  <TbHeart
+                    size={22}
+                    className="text-gray-700 hover:text-pink-600 transition"
+                  />
                   {favorites.length > 0 && (
-                    <span className="absolute -top-1 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">
+                    <span className="absolute -top-1 -right-2 bg-red-600 text-white text-[10px] rounded-full px-1 py-[1px]">
                       {favorites.length}
                     </span>
                   )}
                 </button>
-              </span>
-
-              <span>
-                <LiaShoppingBagSolid />
-              </span>
-
-              <span className="text-sm">
-                <a href="">login</a>
-              </span>
+                <div
+                  onClick={() => navigate("/keranjang")}
+                  className="relative cursor-pointer"
+                >
+                  <HiOutlineShoppingBag
+                    size={22}
+                    className="text-gray-700 hover:text-indigo-600 transition"
+                  />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">
+                      {totalItems}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* spacer */}
+          {isSticky && <div className="h-[90px] lg:h-[120px]" />}
         </div>
-      </header>
+        
+      </div>
 
-      <SearchPopUp show={showSearch} onClose={() => setShowsearch(false)} query={query} setQuery={setQuery} />
-
-      {/* favorites popup - left under navbar */}
+      {/* popup favorit */}
       <div
-        className={`fixed right-2 top-20 z-50 w-80 transition-transform duration-200 ${showFavPopup ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"}`}
+        className={`fixed right-2 top-20 z-50 w-80 transition-transform duration-200 ${
+          showFavPopup
+            ? "translate-x-0 opacity-100"
+            : "translate-x-full opacity-0 pointer-events-none"
+        }`}
         aria-hidden={!showFavPopup}
       >
-        <div className={`cursor-pointer bg-white border border-l-8 border-l-gray-600 rounded-l shadow-lg overflow-hidden duration-300 ${showNav ? "translate-x-0" : "translate-x-full"}`}>
+        <div
+          className={`cursor-pointer bg-white border border-l-8 border-l-gray-600 rounded-l shadow-lg overflow-hidden duration-300 ${
+            showNav ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
           <div className="px-4 py-2 flex items-center justify-between border-b">
             <h3 className="text-sm font-medium">Favorit</h3>
             <button
               className="text-xs text-gray-500"
-              onClick={() => {
-                writeFavorites([]);
-                setFavorites([]);
-              }}
+              onClick={() => clearFavorites()}
             >
               Hapus semua
             </button>
@@ -248,33 +328,46 @@ function Navbar() {
 
           <div className="max-h-64 overflow-auto">
             {favorites.length === 0 ? (
-              <div className="p-4 text-sm text-gray-500">Belum ada favorit.</div>
+              <div className="p-4 text-sm text-gray-500">
+                Belum ada favorit.
+              </div>
             ) : (
               <ul>
                 {favorites.map((f) => (
-                  <li key={f.id ?? f._id} className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50">
+                  <li
+                    key={f.id ?? f._id}
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50"
+                  >
                     <div
                       onClick={() => onOpenFavoriteItem(f)}
                       className="flex items-center gap-3 text-left w-full overflow-hidden"
                     >
                       <div className="min-w-1/5 h-12 bg-gray-100 flex items-center justify-center overflow-hidden rounded">
                         {f.Image ? (
-                          <img src={f.Image} alt={f.name} className="object-contain w-full h-full" />
+                          <img
+                            src={f.Image}
+                            alt={f.name}
+                            className="object-contain w-full h-full"
+                          />
                         ) : (
                           <div className="text-xs text-gray-400">No image</div>
                         )}
                       </div>
 
                       <div className="flex-1">
-                        <div className="text-sm font-medium truncate">{f.name}</div>
-                        {f.price != null && 
-                        <div className="text-xs text-gray-500">Rp {Number(f.price).toLocaleString("id-ID")}
-                        </div>}
+                        <div className="text-sm font-medium truncate">
+                          {f.name}
+                        </div>
+                        {f.price != null && (
+                          <div className="text-xs text-gray-500">
+                            Rp {Number(f.price).toLocaleString("id-ID")}
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     <button
-                      onClick={() => onRemoveFavorite(f.id ?? f._id)}
+                      onClick={() => removeFavorite(f.id ?? f._id)}
                       className="text-xs text-red-500 px-2 py-1 min-w-1/5"
                       aria-label="Hapus favorit"
                     >
@@ -287,8 +380,16 @@ function Navbar() {
           </div>
         </div>
       </div>
-    </main>
+
+      {/* popup search */}
+      <div>
+      <SearchPopUp
+        show={showSearch}
+        onClose={() => setShowsearch(false)}
+        query={query}
+        setQuery={setQuery}
+      />
+      </div>
+    </>
   );
 }
-
-export default Navbar;

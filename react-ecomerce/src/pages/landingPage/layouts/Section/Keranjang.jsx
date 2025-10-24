@@ -12,6 +12,7 @@ import { FaArrowRightLong } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { CiDiscount1 } from "react-icons/ci";
 import login from "../../../../img/logo.png";
+import Navbar from "../Navbar";
 
 
 const Cart = () => {
@@ -72,7 +73,7 @@ const totalDiscount = cart.reduce((acc, item) => {
   return (
     <>
       <div>
-         {loading && (
+        {loading && (
         <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
           <div className="relative flex items-center justify-center">
             <div className="absolute animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
@@ -84,142 +85,7 @@ const totalDiscount = cart.reduce((acc, item) => {
           </div>
         </div>
       )}
-        <div className="w-full">
-          {/* navbar deks */}
-          <div className="hidden xl:block w-full">
-            {/* cta */}
-            <div className="flex justify-center items-center gap-10 py-2.5 bg-[#d1d1d155] w-full overflow-hidden">
-              <div className="flex items-center gap-2">
-                <BsTruck size={20} />
-                <span className="text-xs tracking-tight">
-                  GRATIS ONGKIR UNTUK PENGGUNA PERTAMA
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <BsTruck size={20} />
-                <span className="text-xs tracking-tight">
-                  GRATIS ONGKIR UNTUK PENGGUNA PERTAMA
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <BsTruck size={20} />
-                <span className="text-xs tracking-tight">
-                  GRATIS ONGKIR UNTUK PENGGUNA PERTAMA
-                </span>
-              </div>
-            </div>
-
-            {/* sticky */}
-            <div
-              className={`w-full bg-white border-b-2 border-b-[#e1e1e1a5] transition-all duration-500 ease-in-out ${
-                isSticky ? "fixed top-0 left-0 z-50" : "relative"
-              }`}
-            >
-              <div className="w-full px-8 lg:px-16 xl:px-24 py-2">
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex-shrink-0">
-                    <img
-                      className="h-10 w-auto object-contain"
-                      src={logo}
-                      alt="Logo"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-6">
-                    {/* buat cari mengko di router beda halaman dan masuk ke hal cari */}
-                    <div className="border-b w-50 border-[#c3c3c3] cursor-pointer pb-1">
-                      <span className="text-xs font-light text-[#939393]">
-                        CARI
-                      </span>
-                    </div>
-
-                    <div className="relative group">
-                      <div className="flex items-center gap-1 cursor-pointer">
-                        <AiOutlineUser size={20} strokeWidth={2} />
-                        <span className="text-sm font-extrabold whitespace-nowrap">
-                          Masuk / Daftar
-                        </span>
-                      </div>
-
-                      {/* route hover hal login */}
-                      <div className="absolute right-0 mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg rounded-xl bg-white z-40">
-                        <div className="p-3">
-                          <div className="flex items-center gap-3">
-                            <CiLogin size={18} strokeWidth={0.5} />
-                            <div className="text-sm flex items-center gap-1 font-light">
-                              <button
-                                onClick={() => navigate("/login")}
-                                className="hover:underline cursor-pointer"
-                              >
-                                Masuk
-                              </button>
-                              <span>/</span>
-                              <button
-                                onClick={() => navigate("/register")}
-                                className="hover:underline cursor-pointer"
-                              >
-                                Daftar
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <CiHeart
-                        size={23}
-                        strokeWidth={0.5}
-                        className="cursor-pointer hover:text-red-500 transition-colors"
-                      />
-                      <div className="relative">
-                        <HiOutlineShoppingBag
-                          size={23}
-                          strokeWidth={1.5}
-                          className="cursor-pointer hover:text-blue-600 transition-colors"
-                        />
-                        {totalItems > 0 && (
-                          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                            {totalItems}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* route category */}
-                <div className="mt-4 pt-3 border-t border-gray-100">
-                  <div className="flex gap-8">
-                    <button className="text-sm cursor-pointer font-extrabold hover:underline transition-all">
-                      PRIA
-                    </button>
-                    <button className="text-sm cursor-pointer font-extrabold hover:underline transition-all">
-                      WANITA
-                    </button>
-                    <button className="text-sm cursor-pointer font-extrabold hover:underline transition-all">
-                      ANAK
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Spacer - Prevent content jump saat navbar jadi fixed */}
-            {isSticky && <div className="h-[120px]" />}
-          </div>
-
-          {/* navbar mobile */}
-          <div className="flex xl:hidden w-full fixed top-0 left-0 bg-white z-40 border-b py-3 border-b-[#e1e1e1a5] items-center justify-between px-4">
-            <h2 className="text-sm font-medium flex-grow text-center">
-              {/* {product.name} */}
-            </h2>
-            <CiHeart
-              size={23}
-              strokeWidth={0.5}
-              className="text-gray-700 cursor-pointer hover:text-red-500 transition-colors flex-shrink-0"
-            />
-          </div>
-        </div>
+        <Navbar />
 
         <div className="md:flex">
           <div className="md:px-30 mt-10 lg:mt-10 px-4 sm:px-6 lg:px-10 py-6 sm:py-8 lg:py-10 scrollbar-hide overflow-y-auto max-h-screen md:flex-1/2 bg-white">
@@ -243,14 +109,14 @@ const totalDiscount = cart.reduce((acc, item) => {
             ) : (
               <>
                 <div className="space-y-4 sm:space-y-6 p-3 sm:p-4 lg:p-5 bg-[#dfdede2c] rounded-2xl">
-                  <div className="flex items-center gap-2.5 p-2">
+                  <div className="flex items-center justify-between gap-2.5 p-2">
                     <img
                       src={logo}
                       alt="tas"
                       className="w-10 sm:w-12 lg:w-13 h-auto object-cover"
                     />
-                    <h1 className="text-base sm:text-lg font-bold">
-                      Tas ({totalItems})
+                    <h1 className="text-base sm:text-sm font-bold">
+                        total produk anda {totalItems}
                     </h1>
                   </div>
                   {cart.map((item) => (

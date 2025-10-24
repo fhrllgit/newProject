@@ -29,6 +29,22 @@ import {
 import { BiRuler } from "react-icons/bi";
 import { FaArrowRightLong } from "react-icons/fa6";
 
+const STORAGE_KEY = "ohmay_favorites";
+const readFavorites = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+const writeFavorites = (arr) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+    window.dispatchEvent(new CustomEvent("favorites-updated", { detail: arr }));
+  } catch {}
+};
+
 export default function BuyProduct() {
   const { id } = useParams();
   const location = useLocation();
@@ -54,7 +70,31 @@ export default function BuyProduct() {
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const { addToCart } = useCart();
   const { totalItems } = useCart();
+  const [favorites, setFavorites] = useState([]);
+  const [showNav, setShowNav] = useState(true);
+  const [showFavPopup, setShowFavPopup] = useState(false);
 
+  // popup favorite handlers
+  const toggleFavPopup = () => setShowFavPopup((s) => !s);
+  const closeFavPopup = () => setShowFavPopup(false);
+  const onFavoriteItem = (item) => {
+    const id = item.id ?? item._id;
+    if (!id) return;
+    closeFavPopup();
+    navigate(`/product/${id}`, { state: item });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  // membaca favorites
+  useEffect(() => {
+    setFavorites(readFavorites());
+  }, []);
+  useEffect(() => {
+    const handler = (e) => {
+      setFavorites(Array.isArray(e.detail) ? e.detail : readFavorites());
+    };
+    window.addEventListener("favorites-updated", handler);
+    return () => window.removeEventListener("favorites-updated", handler);
+  }, []);
   useEffect(() => {
     setSelectedIndex(0);
   }, [product?.Image, product?.detail_images]);
@@ -139,6 +179,9 @@ export default function BuyProduct() {
       handleThumbnailClick(selectedIndex - 1);
     }
   };
+  const goToCategory = (slug) => {
+    navigate(`/category/${slug}`, { state: { fromNav: true } });
+  };
 
   // card
   const handleAddToCart = () => {
@@ -153,163 +196,25 @@ export default function BuyProduct() {
   return (
     <div>
       {/* Navbar detail */}
-      <div className="w-full">
-        {/* navbar deks */}
-        <div className="hidden xl:block w-full">
-          {/* cta */}
-          <div className="flex justify-center items-center gap-10 py-2.5 bg-[#d1d1d155] w-full overflow-hidden">
-            <div className="flex items-center gap-2">
-              <BsTruck size={20} />
-              <span className="text-xs tracking-tight">
-                GRATIS ONGKIR UNTUK PENGGUNA PERTAMA
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BsTruck size={20} />
-              <span className="text-xs tracking-tight">
-                GRATIS ONGKIR UNTUK PENGGUNA PERTAMA
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <BsTruck size={20} />
-              <span className="text-xs tracking-tight">
-                GRATIS ONGKIR UNTUK PENGGUNA PERTAMA
-              </span>
-            </div>
-          </div>
-
-          {/* sticky */}
-          <div
-            className={`w-full bg-white border-b-2 border-b-[#e1e1e1a5] transition-all duration-500 ease-in-out ${
-              isSticky ? "fixed top-0 left-0 z-50" : "relative"
-            }`}
-          >
-            <div className="w-full px-8 lg:px-16 xl:px-24 py-2">
-              <div className="flex items-center justify-between w-full">
-                <div className="flex-shrink-0">
-                  <img
-                    className="h-10 w-auto object-contain"
-                    src={logo}
-                    alt="Logo"
-                  />
-                </div>
-
-                <div className="flex items-center gap-6">
-                  {/* buat cari mengko di router beda halaman dan masuk ke hal cari */}
-                  <div className="border-b w-50 border-[#c3c3c3] cursor-pointer pb-1">
-                    <span className="text-xs font-light text-[#939393]">
-                      CARI
-                    </span>
-                  </div>
-
-                  <div className="relative group">
-                    <div className="flex items-center gap-1 cursor-pointer">
-                      <AiOutlineUser size={20} strokeWidth={2} />
-                      <span className="text-sm font-extrabold whitespace-nowrap">
-                        Masuk / Daftar
-                      </span>
-                    </div>
-
-                    {/* route hover hal login */}
-                    <div className="absolute right-0 mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg rounded-xl bg-white z-40">
-                      <div className="p-3">
-                        <div className="flex items-center gap-3">
-                          <CiLogin size={18} strokeWidth={0.5} />
-                          <div className="text-sm flex items-center gap-1 font-light">
-                            <button
-                              onClick={() => navigate("/login")}
-                              className="hover:underline cursor-pointer"
-                            >
-                              Masuk
-                            </button>
-                            <span>/</span>
-                            <button
-                              onClick={() => navigate("/register")}
-                              className="hover:underline cursor-pointer"
-                            >
-                              Daftar
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <CiHeart
-                      size={23}
-                      strokeWidth={0.5}
-                      className="cursor-pointer hover:text-red-500 transition-colors"
-                    />
-                    <div
-                      onClick={() => navigate("/keranjang")}
-                      className="relative"
-                    >
-                      <HiOutlineShoppingBag
-                        size={23}
-                        strokeWidth={1.5}
-                        className="cursor-pointer hover:text-blue-600 transition-colors"
-                      />
-                      {totalItems > 0 && (
-                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                          {totalItems}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* route category */}
-              <div className="mt-4 pt-3 border-t border-gray-100">
-                <div className="flex gap-8">
-                  <button className="text-sm cursor-pointer font-extrabold hover:underline transition-all">
-                    PRIA
-                  </button>
-                  <button className="text-sm cursor-pointer font-extrabold hover:underline transition-all">
-                    WANITA
-                  </button>
-                  <button className="text-sm cursor-pointer font-extrabold hover:underline transition-all">
-                    ANAK
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Spacer - Prevent content jump saat navbar jadi fixed */}
-          {isSticky && <div className="h-[120px]" />}
-        </div>
-
-        {/* navbar mobile */}
-        <div className="flex xl:hidden w-full fixed top-0 left-0 bg-white z-40 border-b py-3 border-b-[#e1e1e1a5] items-center justify-between px-4">
-          <h2 className="text-sm font-medium flex-grow text-center">
-            {product.name}
-          </h2>
-          <CiHeart
-            size={23}
-            strokeWidth={0.5}
-            className="text-gray-700 cursor-pointer hover:text-red-500 transition-colors flex-shrink-0"
-          />
-        </div>
-      </div>
+      <Navbar />
 
       {/* content */}
-      <main className="flex  xl:mt-0 mt-12">
-        {/* kanan */}
+      <main className="flex xl:mt-0 mt-12">
+        {/* kiri */}
         <section className="scrollbar-hide overflow-x-auto max-h-screen flex-1/2">
           <div
             className={`w-full cursor-pointer overflow-x-auto flex  justify-center items-end relative max-h-150 min-h-150 group bg-[${product.warna}]`}
-          >
+            >
             <div
-              onClick={handleNext}
-              className="p-2 left-0 top-1/2 hover:bg-black hover:text-white bg-white flex items-center border justify-center cursor-pointer absolute z-10 ml-8"
+              onClick={handlePrev}
+              className="p-3 left-0 top-1/2 hover:bg-black hover:text-white bg-white flex items-center border justify-center cursor-pointer absolute z-10 ml-8"
             >
               <IoIosArrowBack size={20} />
             </div>
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex scrollbar-hide hide-scroll items-center overflow-x-auto w-full relative min-h-150 snap-x snap-mandatory scroll-smooth"
+              className="flex cursor-crosshair scrollbar-hide hide-scroll items-center overflow-x-auto w-full relative min-h-150 snap-x snap-mandatory scroll-smooth"
             >
               {images.map((img, index) => (
                 <div
@@ -355,15 +260,23 @@ export default function BuyProduct() {
                     <span className="text-xs font-bold"></span>
                     {product.variasi}
                   </p>
-                  <span className="font-semibold text-sm">
-                    {" "}
-                    {formatToIDR(product.price)}
-                  </span>
+                  <span className="font-semibold text-md">
+            <span className="flex gap-2 items-end">
+              <h2>{formatToIDR(product.price - product.discount)}</h2>
+              <h2 className="text-xs line-through text-[#adadad]">{formatToIDR(product.price)}</h2>
+            </span>
+            {product.discount ? (
+              <span className="text-sm text-red-500">
+                <span className="text-black text-xs font-light">Anda menghemat </span>
+                {formatToIDR(product.discount)}
+              </span>
+            ) : null}
+          </span>
                 </div>
               </div>
             </div>
             <div
-              onClick={handlePrev}
+              onClick={handleNext}
               className="p-3 right-0 mr-8 z-10 absolute flex items-center justify-center top-1/2 cursor-pointer border hover:bg-black hover:text-white bg-white"
             >
               <IoIosArrowForward size={20} />
@@ -439,7 +352,7 @@ export default function BuyProduct() {
                   </span>
                 </div>
 
-                {/* opup guide */}
+                {/* popup guide */}
                 {showSizeGuide && (
                   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-3xl w-[90%] max-w-xl shadow-lg relative flex flex-col">
@@ -509,7 +422,7 @@ export default function BuyProduct() {
                     </div>
                   </div>
                 )}
-                {/* opup guide end */}
+                {/* popup guide end */}
               </div>
               <div className="flex gap-3 text-sm mt-4 max-w-md flex-wrap">
                 {size.map((item, i) => (
@@ -533,7 +446,9 @@ export default function BuyProduct() {
 
               <div className="flex items-center gap-3 mt-5">
                 <div className="border flex-1 pb-0.5 ">
-                  <div className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5">
+                  <div 
+                  onClick={handleAddToCart}
+                  className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5">
                     <p className="text-xs font-bold text-white tracking-[0.2em]">
                       TAMBAH KE KERANJANG
                     </p>
@@ -592,10 +507,21 @@ export default function BuyProduct() {
                 )}
             </section>
           </Element>
+          <div className="relative pt-8">
+        <ProductSection
+          title="Mungkin anda juga menyukai"
+          endpoint="/products/product"
+          filterFn={(item) => true}
+          sortFn={(a, b) => a.price - b.price}
+          onItemClick={(item) =>
+            navigate(`/product/${item.id}`, { state: item })
+          }
+        />
+      </div>
         </section>
 
-        {/* kiri */}
-        <section className="hidden lg:flex lg:flex-col border-l border-l-[#dcdcdc] h-screen px-5 py-5 flex-1/8">
+        {/* kanan */}
+        <section className="hidden lg:flex lg:flex-col border-l border-l-[#dcdcdc] h-full min-h-screen px-5 py-5 flex-1/8">
           <div className="flex justify-between items-center">
             <h1 className="text-[13px] font-extralight">{product.tipe}</h1>
             <p className="text-[13px] underline hover:bg-black cursor-pointer hover:text-white w-max font-extralight">
@@ -608,11 +534,14 @@ export default function BuyProduct() {
             {product.variasi}
           </p>
           <span className="font-semibold text-md">
-            {" "}
-            {formatToIDR(product.price)}
+            <span className="flex gap-2 items-end">
+              <h2>{formatToIDR(product.price - product.discount)}</h2>
+              <h2 className="text-xs line-through text-[#adadad]">{formatToIDR(product.price)}</h2>
+            </span>
             {product.discount ? (
-              <span className="ml-3 text-sm text-red-500">
-                - Rp {product.discount}
+              <span className="text-sm text-red-500">
+                <span className="text-black text-xs font-light">Anda menghemat </span>
+                {formatToIDR(product.discount)}
               </span>
             ) : null}
           </span>
@@ -638,7 +567,7 @@ export default function BuyProduct() {
                   </span>
                 </div>
 
-                {/* opup guide */}
+                {/* popup guide */}
                 {showSizeGuide && (
                   <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-3xl w-[90%] max-w-xl shadow-lg relative flex flex-col">
@@ -772,17 +701,88 @@ export default function BuyProduct() {
           </div>
         </section>
       </main>
+      {/* popup fav */}
+      <div
+        className={`fixed right-2 top-20 z-50 w-80 transition-transform duration-200 ${
+          showFavPopup
+            ? "translate-x-0 opacity-100"
+            : "translate-x-full opacity-0 pointer-events-none"
+        }`}
+        aria-hidden={!showFavPopup}
+      >
+        <div
+          className={`cursor-pointer bg-white border border-l-8 border-l-gray-600 rounded-l shadow-lg overflow-hidden duration-300 ${
+            showNav ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="px-4 py-2 flex items-center justify-between border-b">
+            <h3 className="text-sm font-medium">Favorit</h3>
+            <button
+              className="text-xs text-gray-500"
+              onClick={() => {
+                writeFavorites([]);
+                setFavorites([]);
+              }}
+            >
+              Hapus semua
+            </button>
+          </div>
 
-      {/* <div className="relative mt-96 pt-8">
-        <ProductSection
-          endpoint="/products/product"
-          filterFn={(item) => String(item.category).toLowerCase() === "pria"}
-          onItemClick={(item) =>
-            navigate(`/product/${item.id}`, { state: item })
-          }
-        />
+          <div className="max-h-64 overflow-auto">
+            {favorites.length === 0 ? (
+              <div className="p-4 text-sm text-gray-500">
+                Belum ada favorit.
+              </div>
+            ) : (
+              <ul>
+                {favorites.map((f) => (
+                  <li
+                    key={f.id ?? f._id}
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50"
+                  >
+                    <div
+                      onClick={() => onFavoriteItem(f)}
+                      className="flex items-center gap-3 text-left w-full overflow-hidden"
+                    >
+                      <div className="min-w-1/5 h-12 bg-gray-100 flex items-center justify-center overflow-hidden rounded">
+                        {f.Image ? (
+                          <img
+                            src={f.Image}
+                            alt={f.name}
+                            className="object-contain w-full h-full"
+                          />
+                        ) : (
+                          <div className="text-xs text-gray-400">No image</div>
+                        )}
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="text-sm font-medium truncate">
+                          {f.name}
+                        </div>
+                        {f.price != null && (
+                          <div className="text-xs text-gray-500">
+                            Rp {Number(f.price).toLocaleString("id-ID")}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => onRemoveFavorite(f.id ?? f._id)}
+                      className="text-xs text-red-500 px-2 py-1 min-w-1/5"
+                      aria-label="Hapus favorit"
+                    >
+                      Hapus
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
         <Footer />
-      </div> */}
     </div>
   );
 }

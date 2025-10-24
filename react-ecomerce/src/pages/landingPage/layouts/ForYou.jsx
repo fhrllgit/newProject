@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import Hots from "./Section/Hots";
+import heroImg from "../../../assets/img/hero.png";
+import adds1 from "../../../assets/img/adds1.png"
+import adds2 from "../../../assets/img/adds2.png"
+import adds3 from "../../../assets/img/adds3.png"
 
 const ForYou = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -8,169 +12,158 @@ const ForYou = () => {
   const cards = [
     {
       id: 1,
-      image: "../../src/assets/img/hero.jpeg",
+      image: heroImg,
       title: "Service 1",
-      judul: "A FOTOGRAFER TEAM 1",
-      description: "Fotografer Terbaik Di Kudus Preweed",
-      point: "Lorem ipsum dolor sit amet"
+      judul: "Belanja lewat FSDR",
+      description: "Mudah Hemat dan Terpercaya",
+      point: "belanja dengan satu klik saja",
     },
     {
       id: 2,
-      image: "../../src/assets/img/hero.jpeg",
-      title: "Service 2", 
-      judul: "A FOTOGRAFER TEAM 2",
-      description: "Fotografer Terbaik Di Kudus Wedding",
-      point: "Lorem ipsum dolor sit amet"
+      image: adds1,
+      title: "Service 2",
+      judul: "FSDR, Solusi Belanja Cerdas",
+      description: "Dapatkan produk terbaik tanpa ribet",
+      point: "Harga bersahabat, kualitas terjamin",
     },
     {
       id: 3,
-      image: "../../src/assets/img/hero.jpeg",
+      image: adds2,
       title: "Service 3",
-      judul: "A FOTOGRAFER TEAM 3",
-      description: "Fotografer Terbaik Di Kudus Portrait",
-      point: "Lorem ipsum dolor sit amet"
+      judul: "Nikmati Belanja Modern di FSDR",
+      description: "Cepat, aman, dan tanpa batas",
+      point: "Dari kebutuhan harian hingga gaya hidup",
     },
     {
       id: 4,
-      image: "../../src/assets/img/hero.jpeg",
+      image: adds3,
       title: "Service 4",
-      judul: "A FOTOGRAFER TEAM 4",
-      description: "Fotografer Terbaik Di Kudus Event",
-      point: "Lorem ipsum dolor sit amet"
-    },
-    {
-      id: 5,
-      image: "../../src/assets/img/hero.jpeg",
-      title: "Service 5",
-      judul: "A FOTOGRAFER TEAM 5",
-      description: "Fotografer Terbaik Di Kudus Commercial",
-      point: "Lorem ipsum dolor sit amet"
+      judul: "Saatnya Pindah ke FSDR",
+      description: "Platform jual beli masa kini",
+      point: "Temukan barang favoritmu dengan harga terbaik",
     }
   ];
+
   useEffect(() => {
     const intervaled = setInterval(() => {
-      setCurrentIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % cards.length;
-        return nextIndex
-      })
+      setCurrentIndex((prev) => (prev + 1) % cards.length);
     }, 3000);
     return () => clearInterval(intervaled);
-  }, [cards.length]) 
+  }, [cards.length]);
+
   useEffect(() => {
-    if (scrolRef.current) {
-      // Ambil card pertama
-      const cardEl = scrolRef.current.querySelector('.card');
-      if (cardEl) {
-        const cardWidth = cardEl.offsetWidth;
-        const scrollPosition = currentIndex * (cardWidth + 12);
-        scrolRef.current.scrollTo({
-          left: scrollPosition,
-          behavior: 'smooth'
-        });
-      }
-    }
+    const el = scrolRef.current;
+    if (!el) return;
+    const cardEl = el.querySelector(".card");
+    if (!cardEl) return;
+    const cardWidth = cardEl.offsetWidth + 12;
+    el.scrollTo({ left: currentIndex * cardWidth, behavior: "smooth" });
   }, [currentIndex]);
-const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
-  const goToPrevious = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? cards.length - 1 : prevIndex - 1
-    );
-  };
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) => 
-      (prevIndex + 1) % cards.length
-    );
-  };
+
+  const goToSlide = (index) => setCurrentIndex(index);
+  const goToPrevious = () =>
+    setCurrentIndex((prev) => (prev === 0 ? cards.length - 1 : prev - 1));
+  const goToNext = () => setCurrentIndex((prev) => (prev + 1) % cards.length);
+
   return (
     <>
-      <div className="flex flex-col">
-        <div id="Service" className="w-full h-screen mt-16 px-14 py-8 bg-gray-50">
-          <div className="flex items-center justify-center h-full relative">
-            <button 
-              onClick={goToPrevious}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200"
+      <section className="flex flex-col">
+        <div
+          id="Service"
+          className="w-full min-h-screen mt-16 px-4 sm:px-8 lg:px-14 py-8 relative"
+        >
+          {/* Tombol Navigasi */}
+          <button
+            onClick={goToPrevious}
+            className="absolute shadow-lg shadow-gray-300 left-2 sm:left-4 lg:left-20 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-gray-100 p-2 sm:p-3 rounded transition"
+          >
+            <svg
+              className="w-5 h-5 sm:w-6 sm:h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <button 
-              onClick={goToNext}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200"
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+
+          <button
+            onClick={goToNext}
+            className="absolute shadow-lg shadow-gray-300 right-2 sm:right-4 lg:right-20 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-gray-100 p-2 sm:p-3 rounded transition"
+          >
+            <svg
+              className="w-5 h-5 sm:w-6 sm:h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-            <div 
-              ref={scrolRef}
-              className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 scroll-smooth"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              <div className="flex gap-4 pb-4 ">
-                {cards.map((card, index) => (
-                  <div
-                    key={card.id}
-                    className={`card flex w-full border-gray-200 rounded-lg overflow-hidden shadow-lg bg-white flex-shrink-0 transition-all duration-300 ${
-                      index === currentIndex ? ' shadow-xl' : ''
-                    }`}
-                    style={{ minWidth: '1000px', height: '600px' }}
-                  >
-                    <div className="flex-1">
-                      <img
-                        className="w-full h-full object-cover"
-                        src={card.image}
-                        alt={card.title}
-                      />
-                    </div>
-                    <div className="flex-1 flex items-center justify-center flex-col p-6 space-y-2">
-                      <p className="text-center text-sm tracking-[0.2em] leading-relaxed">
-                        {card.judul}
-                      </p>
-                      <p className="text-black font-semibold text-2xl text-center leading-relaxed">
-                        {card.description}
-                      </p>
-                      <p className="text-black text-xs text-center leading-relaxed">
-                        {card.point}
-                      </p>
-                      <button className="py-2 border text-md font-light px-10 tracking-tighter cursor-pointer hover:bg-gray-50 transition-colors duration-200">
-                        BUY NOW
-                      </button>
-                    </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+
+          {/* Carousel */}
+          <div
+            ref={scrolRef}
+            className="w-full overflow-x-auto scroll-smooth scrollbar-hide"
+          >
+            <div className="flex gap-4 pb-4">
+              {cards.map((card, index) => (
+                <div
+                  key={card.id}
+                  className={`card flex flex-col sm:flex-row w-full min-w-[90%] sm:min-w-[600px] md:min-w-[800px] lg:min-w-[1000px] h-auto sm:h-[500px] md:h-[600px] rounded-lg overflow-hidden flex-shrink-0 transition-all duration-300 ${
+                    index === currentIndex ? "scale-[1.01]" : ""
+                  }`}
+                >
+                  <div className="flex-1 w-full sm:w-1/2">
+                    <img
+                      className="w-full h-64 sm:h-full object-cover"
+                      src={card.image}
+                      alt={card.title}
+                    />
                   </div>
-                ))}
-              </div>
+                  <div className="flex-1 flex items-center justify-center flex-col p-4 sm:p-6 space-y-3 text-center">
+                    <p className="text-xs sm:text-sm tracking-[0.15em]">
+                      {card.judul}
+                    </p>
+                    <p className="text-lg sm:text-2xl font-semibold">
+                      {card.description}
+                    </p>
+                    <p className="text-xs sm:text-sm">{card.point}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          <div>
-            <div className="flex justify-center space-x-2 mt-12">
+
+          {/* Indicator */}
+          <div className="flex flex-col items-center mt-6 sm:mt-10">
+            <div className="flex justify-center space-x-2">
               {cards.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-200 
-                    ${
-                    index === currentIndex 
-                      ? 'bg-blue-500 scale-110' 
-                      : 'bg-gray-300 hover:bg-gray-400'
+                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-200 ${
+                    index === currentIndex
+                      ? "bg-black scale-110"
+                      : "bg-gray-300 hover:bg-gray-400"
                   }`}
                 />
               ))}
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-1 mt-4 mx-auto max-w-xs">
-              <div 
-                className="bg-blue-500 h-1 rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${((currentIndex + 1) / cards.length) * 100}%` }}
-              />
-            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-{/* Hots */}
       <Hots />
     </>
   );
