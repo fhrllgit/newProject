@@ -12,8 +12,8 @@ import { FiBarChart2 } from "react-icons/fi";
 import { FiSettings } from "react-icons/fi";
 import { TbLogout2 } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
-import RightDashboard from "./Dashboard/RightAdminDashboard";
 import { BsCart } from "react-icons/bs";
+import RightTransaksi from "./Dashboard/RightAdminTransaksi";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -207,7 +207,7 @@ const Dashboard = () => {
             overflow-y-auto
           `}
         >
-          <RightDashboard />
+          <RightTransaksi />
         </div>
       </div>
     </>

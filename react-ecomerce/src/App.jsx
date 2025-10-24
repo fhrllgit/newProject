@@ -11,6 +11,7 @@ import Register from "./pages/Register";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProduct from "./pages/admin/ProductPage";
 import AdminOrders from "./pages/admin/AdminOrders";
+import AdminTransaksi from "./pages/admin/AdminTransaksi"
 
 // modals admin
 import AddProduct from "./components/Modals/AddProductModal";
@@ -59,6 +60,11 @@ export default function App() {
             </AdminRoute>
           } />
           <Route path="/admin/Order" element={
+            <AdminRoute>
+              <AdminOrders />
+            </AdminRoute>
+          } />
+          <Route path="/admin/transaksi" element={
             <AdminRoute>
               <AdminOrders />
             </AdminRoute>
