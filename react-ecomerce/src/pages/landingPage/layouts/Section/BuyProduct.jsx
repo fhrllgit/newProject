@@ -767,7 +767,6 @@ export default function BuyProduct() {
                         )}
                       </div>
                     </div>
-
                     <button
                       onClick={() => onRemoveFavorite(f.id ?? f._id)}
                       className="text-xs text-red-500 px-2 py-1 min-w-1/5"

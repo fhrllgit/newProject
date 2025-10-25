@@ -8,7 +8,7 @@ exports.getTransactionSummary = (req, res) => {
       SUM(CASE WHEN status='SELESAI' THEN 1 ELSE 0 END) AS total_selesai,
       SUM(CASE WHEN status='DIBATALKAN' THEN 1 ELSE 0 END) AS total_batal,
       SUM(CASE WHEN status='DIPROSES' OR status='DIKIRIM' THEN 1 ELSE 0 END) AS total_diproses,
-      SUM(total_after_discount) AS total_pendapatan
+      SUM(CASE WHEN status='SELESAI' THEN total_after_discount ELSE 0 END) AS total_pendapatan
     FROM orders
   `;
 
@@ -21,14 +21,14 @@ exports.getTransactionSummary = (req, res) => {
     }
 
     const topProductsSql = `
-  SELECT oi.product_name, SUM(oi.quantity) AS total_terjual
-  FROM order_items oi
-  JOIN orders o ON oi.order_id = o.id
-  WHERE o.status = 'SELESAI'   -- hanya order selesai
-  GROUP BY oi.product_name
-  ORDER BY total_terjual DESC
-  LIMIT 10
-`;
+      SELECT oi.product_name, SUM(oi.quantity) AS total_terjual
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      WHERE o.status = 'SELESAI'   -- hanya order selesai
+      GROUP BY oi.product_name
+      ORDER BY total_terjual DESC
+      LIMIT 10
+    `;
 
     db.query(topProductsSql, (err2, products) => {
       if (err2) {
@@ -37,7 +37,7 @@ exports.getTransactionSummary = (req, res) => {
           .status(500)
           .json({ message: "Gagal mengambil produk terlaris" });
       }
-      console.log("🔥 Top Products:", products);
+
       res.json({
         summary: result[0],
         topProducts: products,
@@ -45,6 +45,7 @@ exports.getTransactionSummary = (req, res) => {
     });
   });
 };
+
 
 // Daftar Transaksi Ringkas (untuk tabel dashboard)
 exports.getTransactionList = (req, res) => {

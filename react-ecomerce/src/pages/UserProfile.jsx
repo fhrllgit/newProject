@@ -7,6 +7,8 @@ import { IoIosArrowBack } from "react-icons/io";
 import { PiWarningCircleLight } from "react-icons/pi";
 import Riwayat from "../pages/user/userRiwayat";
 import Ordering from "../pages/user/order";
+import Navbar from "./landingPage/layouts/Navbar";
+import { useFavorites } from "../hooks/useFavorites";
 
 const UserProfile = () => {
   const [user, setUser] = useState(null);
@@ -206,8 +208,18 @@ const UserProfile = () => {
       console.error("Gagal logout:", err);
     }
   };
+  const { favorites, addFavorite, removeFavorite, isFavorite, clearFavorites } = useFavorites();
+  const formatToIDR = (number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(number);
+  };
+
 
   const renderContent = () => {
+    
     // akun user
     if (activeMenu === "informasi-account" && !isEditing) {
       return (
@@ -424,15 +436,86 @@ const UserProfile = () => {
     }
     // sukai love
     if (activeMenu === "sukai-wishlist") {
-      return (
-        <div className="bg-white w-full max-w-2xl shadow-xl rounded-2xl p-4 sm:p-6 lg:p-8">
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6">
-            Wish List
-          </h1>
-          <p className="text-sm sm:text-base text-gray-600">Wish List</p>
+  return (
+    <div className="bg-white w-full max-w-3xl shadow-xl rounded-2xl p-6 sm:p-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+          <span>💖</span> Wish List
+        </h1>
+        {favorites.length > 0 && (
+          <button
+            onClick={clearFavorites}
+            className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+          >
+            Hapus Semua
+          </button>
+        )}
+      </div>
+
+      {/* Empty State */}
+      {favorites.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/4076/4076500.png"
+            alt="Empty wishlist"
+            className="w-20 h-20 mb-3 opacity-80"
+          />
+          <p className="text-gray-500 text-sm sm:text-base">
+            Belum ada produk favorit kamu disini.
+          </p>
         </div>
-      );
-    }
+      ) : (
+        <div className="overflow-hidden border border-gray-200 rounded-xl">
+          <table className="w-full border-collapse text-sm sm:text-base">
+            <thead className="bg-gray-100 text-gray-700">
+              <tr>
+                <th className="py-3 px-4 text-left font-medium">Produk</th>
+                <th className="py-3 px-4 text-left font-medium w-24">Gambar</th>
+                <th className="py-3 px-4 text-left font-medium">Harga</th>
+                <th className="py-3 px-4 text-center font-medium w-24">Aksi</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {favorites.map((item) => (
+                <tr
+                  key={item.id ?? item._id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="py-3 px-4 text-gray-900 text-xs font-medium truncate max-w-[200px]">
+                    {item.name}
+                  </td>
+                  <td className="py-3 px-4">
+                    <img
+                      src={
+                        item.Image
+                      }
+                      alt={item.name}
+                      className="w-12 h-12 object-cover rounded-md border border-gray-200"
+                    />
+                  </td>
+                  <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm">
+                    {formatToIDR(item.price)}
+                  </td>
+                  <td className="py-3 px-4 text-center">
+                    <button
+                      onClick={() => removeFavorite(item.id ?? item._id)}
+                      className="text-red-600 cursor-pointer hover:text-red-700 text-xs sm:text-sm font-medium transition-colors"
+                    >
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
     // order chekout/informasi cara order
     if (activeMenu === "ordering") {
       return (
@@ -498,70 +581,8 @@ const UserProfile = () => {
 
   return (
     <>
+    <Navbar />
       <div className="min-h-screen bg-gray-50">
-        {/* barrr */}
-        <div className="border-b border-gray-200 bg-white">
-          <div className="max-w-7xl mx-auto px-4 py-2.5 sm:py-3">
-            <div className="flex items-center justify-between text-xs sm:text-sm">
-              <div className="flex items-center gap-3 sm:gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
-                <div className="flex items-center gap-2 whitespace-nowrap">
-                  <svg
-                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 3h18v18H3V3z"
-                    />
-                  </svg>
-                  <span className="hidden sm:inline">
-                    GRATIS ONGKIR UNTUK PESANAN MIN. 900RB
-                  </span>
-                  <span className="sm:hidden">GRATIS ONGKIR MIN. 900RB</span>
-                </div>
-                <div className="flex items-center gap-2 whitespace-nowrap">
-                  <svg
-                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <rect
-                      x="3"
-                      y="5"
-                      width="18"
-                      height="14"
-                      rx="2"
-                      strokeWidth={2}
-                    />
-                  </svg>
-                  <span>CHAT DENGAN KAMI</span>
-                </div>
-                <div className="flex items-center gap-2 whitespace-nowrap">
-                  <svg
-                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <span>KONTAK RESMI ADIDAS</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* contennn */}
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">

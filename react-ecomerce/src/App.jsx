@@ -13,6 +13,7 @@ import AdminProduct from "./pages/admin/ProductPage";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminTransaksi from "./pages/admin/AdminTransaksi"
 import AdminUser from "./pages/admin/AdminUser"
+import AdminUtama from "./components/SidebarUtama"
 
 // modals admin
 import AddProduct from "./components/Modals/AddProductModal";
@@ -29,6 +30,8 @@ import User from "./pages/UserProfile";
 // route protection
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+import RightAdminLaporan from "./components/Dashboard/RightAdminLaporan";
+import AdminLaporan from "./pages/admin/AdminLaporan";
 
 export default function App() {
   return (
@@ -57,7 +60,7 @@ export default function App() {
           {/* admin pages */}
           <Route path="/admin/dashboard" element={
             <AdminRoute>
-              <AdminDashboard />
+              <AdminUtama />
             </AdminRoute>
           } />
           <Route path="/admin/Order" element={
@@ -70,14 +73,19 @@ export default function App() {
               <AdminTransaksi />
             </AdminRoute>
           } />
-          <Route path="/admin/user" element={
+          <Route path="/admin/laporan" element={
             <AdminRoute>
-              <AdminUser />
+              <AdminLaporan />
             </AdminRoute>
           } />
           <Route path="/admin/products" element={
             <AdminRoute>
               <AdminProduct />
+            </AdminRoute>
+          } />
+          <Route path="/admin/user" element={
+            <AdminRoute>
+              <AdminUser />
             </AdminRoute>
           } />
           <Route path="/admin/products/add" element={

@@ -27,4 +27,8 @@ router.put("/profile", verifyToken, userController.updateProfile);
 
 router.post("/logout", verifyToken, userController.logout);
 
+
+
+router.post("/logout", verifyToken, userController.logout);
+
 module.exports = router;

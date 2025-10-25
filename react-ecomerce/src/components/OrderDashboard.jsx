@@ -30,7 +30,7 @@ const Dashboard = () => {
     { name: "Kategori", icons: <FiTag />, path: "/admin/categories" },
     { name: "User", icons: <FiUser />, path: "/admin/user" },
     { name: "Transaksi", icons: <FiCreditCard />, path: "/admin/transaksi" },
-    { name: "Laporan", icons: <FiBarChart2 />, path: "/admin" },
+    { name: "Laporan", icons: <FiBarChart2 />, path: "/admin/laporan" },
     { name: "Pengaturan", icons: <FiSettings />, path: "/admin" },
   ];
 

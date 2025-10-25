@@ -37,6 +37,15 @@ const DashboardTransaksi = () => {
     fetchData();
   }, [token]);
 
+    const formatToIDR = (number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(number);
+  };
+
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -65,7 +74,7 @@ const DashboardTransaksi = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="p-6 bg-gradient-to-br from-gray-900 to-gray-700 shadow-lg rounded-xl text-white transform hover:scale-105 transition-transform">
           <p className="text-sm opacity-90 mb-2">Total Pendapatan</p>
-          <p className="text-2xl font-bold">{summary.total_pendapatan}</p>
+          <p className="text-2xl font-bold">{formatToIDR(summary.total_pendapatan)}</p>
         </div>
         
         <div className="p-6 bg-gradient-to-br from-gray-800 via-gray-600 to-gray-500 shadow-lg rounded-xl text-white transform hover:scale-105 transition-transform">
@@ -103,7 +112,7 @@ const DashboardTransaksi = () => {
             <tr key={t.order_id} className="hover:bg-gray-50 transition-colors">
               <td className="p-4">{t.order_id}</td>
               <td className="p-4">{t.user_name}</td>
-              <td className="p-4">{t.total_after_discount}</td>
+              <td className="p-4">{formatToIDR(t.total_after_discount)}</td>
               <td className="p-4">{t.status}</td>
               <td className="p-4">{new Date(t.created_at).toLocaleString()}</td>
               <td className="p-4">{t.total_item}</td>
@@ -112,15 +121,6 @@ const DashboardTransaksi = () => {
         </tbody>
       </table>
     </div>
-    
-    <h2 className="text-xl font-bold mt-8 mb-4">Produk Terlaris</h2>
-    <ul className="bg-white shadow rounded p-4">
-      {summary && summary.topProducts && summary.topProducts.map((p) => (
-        <li key={p.product_name} className="text-black mb-2 font-semibold">
-          {p.product_name} - Terjual: {p.total_terjual}
-        </li>
-      ))}
-    </ul>
   </div>
 </div>
     </>
