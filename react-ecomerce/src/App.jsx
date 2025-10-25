@@ -10,6 +10,9 @@ import Register from "./pages/Register";
 // pages admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProduct from "./pages/admin/ProductPage";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminTransaksi from "./pages/admin/AdminTransaksi"
+import AdminUser from "./pages/admin/AdminUser"
 
 // modals admin
 import AddProduct from "./components/Modals/AddProductModal";
@@ -20,6 +23,8 @@ import Apps from "./pages/landingPage/App";
 import BuyProduct from "./pages/landingPage/layouts/Section/BuyProduct";
 import Category from "./pages/landingPage/layouts/Section/Category";
 import Keranjang from "./pages/landingPage/layouts/Section/Keranjang";
+// import User from "./pages//UserProfile"
+import User from "./pages/UserProfile";
 
 // route protection
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -36,6 +41,7 @@ export default function App() {
           {/* user pages */}
           <Route path="/home" element={<Home />} />
           <Route path="/keranjang" element={<Keranjang />} />
+          <Route path="/user-profile" element={<User />} />
           <Route path="/checkout" element={
             <ProtectedRoute>
               <Checkout />
@@ -52,6 +58,21 @@ export default function App() {
           <Route path="/admin/dashboard" element={
             <AdminRoute>
               <AdminDashboard />
+            </AdminRoute>
+          } />
+          <Route path="/admin/Order" element={
+            <AdminRoute>
+              <AdminOrders />
+            </AdminRoute>
+          } />
+          <Route path="/admin/transaksi" element={
+            <AdminRoute>
+              <AdminTransaksi />
+            </AdminRoute>
+          } />
+          <Route path="/admin/user" element={
+            <AdminRoute>
+              <AdminUser />
             </AdminRoute>
           } />
           <Route path="/admin/products" element={

@@ -3,13 +3,6 @@ const port = 3005;
 const path = require("path")
 const fs = require("fs")
 
-// exports.uploadSingleFile = (req, res) => {
-//   if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-//   const fileUrl = `http://localhost:${port}/uploads/tmp/${req.file.filename}`;
-//   res.json({ url: fileUrl, filename: req.file.filename });
-// };
-
-
 exports.uploadSingleFile = (req, res) => {
   console.log("=== DEBUG UPLOAD SINGLE FILE ===");
   console.log("req.file:", req.file);
@@ -40,17 +33,6 @@ exports.uploadSingleFile = (req, res) => {
     res.status(500).json({ message: "Error uploading file", error });
   }
 };
-
-// exports.uploadMultipleFile = (req, res) => {
-//   if (!req.files || req.files.length === 0) {
-//     return res.status(400).json({ message: "No file uploaded" });
-//   }
-//   const fileUrls = req.files.map((file) => ({
-//     filename: file.filename,
-//     urls: `http://localhost:${port}/uploads/tmp/${file.filename}`,
-//   }));
-//   res.json({ urls: fileUrls });
-// };
 
 
 exports.uploadMultipleFile = (req, res) => {

@@ -72,6 +72,7 @@ export default function Login() {
                   <form className="flex flex-col mt-8" onSubmit={handleSubmit}>
                     <div className="w-full border-b-[#c3c3c3] border-b mt-9">
                       <input
+                      type="email"
                         className="outline-0 ring-0 w-full placeholder:text-xs font-extralight placeholder:text-[#939393] mb-1.5"
                         placeholder="EMAIL"
                         onChange={(e) =>

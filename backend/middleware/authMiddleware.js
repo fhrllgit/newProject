@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = "secret123";
+const { isTokenBlacklisted } = require("../controllers/userController")
+
 
 exports.verifyToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -7,9 +9,12 @@ exports.verifyToken = (req, res, next) => {
 
   if (!token) return res.status(401).json({ message: "Token tidak ditemukan" });
 
+  if (isTokenBlacklisted(token)) {
+    return res.status(401).json({ message: "Token sudah logout" });
+  }
+
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ message: "Token tidak valid" });
-    console.log("🔑 decoded user:", user);
     req.user = user;
     next();
   });
@@ -26,4 +31,5 @@ exports.isUser = (req, res, next) => {
     return res.status(403).json({ message: "Akses ditolak, bukan user" });
   next();
 };
+
 
