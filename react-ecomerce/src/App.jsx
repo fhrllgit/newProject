@@ -12,6 +12,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProduct from "./pages/admin/ProductPage";
 import AdminOrders from "./pages/admin/AdminOrders";
 import AdminTransaksi from "./pages/admin/AdminTransaksi"
+import AdminUser from "./pages/admin/AdminUser"
 
 // modals admin
 import AddProduct from "./components/Modals/AddProductModal";
@@ -66,7 +67,12 @@ export default function App() {
           } />
           <Route path="/admin/transaksi" element={
             <AdminRoute>
-              <AdminOrders />
+              <AdminTransaksi />
+            </AdminRoute>
+          } />
+          <Route path="/admin/user" element={
+            <AdminRoute>
+              <AdminUser />
             </AdminRoute>
           } />
           <Route path="/admin/products" element={

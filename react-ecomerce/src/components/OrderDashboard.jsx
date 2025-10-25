@@ -28,7 +28,7 @@ const Dashboard = () => {
     { name: "Produk", icons: <FiBox />, path: "/admin/products" },
     { name: "Order", icons: <BsCart />, path: "/admin/Order" },
     { name: "Kategori", icons: <FiTag />, path: "/admin/categories" },
-    { name: "User", icons: <FiUser />, path: "/admin" },
+    { name: "User", icons: <FiUser />, path: "/admin/user" },
     { name: "Transaksi", icons: <FiCreditCard />, path: "/admin/transaksi" },
     { name: "Laporan", icons: <FiBarChart2 />, path: "/admin" },
     { name: "Pengaturan", icons: <FiSettings />, path: "/admin" },

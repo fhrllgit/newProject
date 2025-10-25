@@ -16,11 +16,8 @@ const readFavorites = () => {
 const writeFavorites = (arr) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-    // broadcast update within same window (Navbar listens)
     window.dispatchEvent(new CustomEvent("favorites-updated", { detail: arr }));
-  } catch (e) {
-    // ignore
-  }
+  } catch (e) {}
 };
 
 export default function ProductSection({
@@ -36,8 +33,10 @@ export default function ProductSection({
   const containerRef = useRef(null);
   const SCROLL_AMOUNT = 300;
 
-  const { data, loading, error } = items ? { data: null, loading: false, error: null } : useFetch(endpoint);
-  const raw = items ?? (data ?? []);
+  const { data, loading, error } = items
+    ? { data: null, loading: false, error: null }
+    : useFetch(endpoint);
+  const raw = items ?? data ?? [];
   const arr = Array.isArray(raw) ? raw : [];
   const [liked, setLiked] = useState([]);
 
@@ -65,7 +64,6 @@ export default function ProductSection({
     }).format(number);
   };
 
-  // handle like/unlike: store full product (minimal fields) in localStorage list
   const handleLike = (item, e) => {
     e?.stopPropagation?.();
     const rawId = item?.id ?? item?._id;
@@ -80,11 +78,10 @@ export default function ProductSection({
       next = current.filter((f) => String(f.id ?? f._id) !== idStr);
       setLiked((prev) => prev.filter((x) => x !== idStr));
     } else {
-      // store a minimal snapshot to render later in navbar popup
       const snapshot = {
         id: rawId,
         name: item?.name ?? item?.title ?? "",
-        Image: item?.Image ?? item?.image ?? (item?.images?.[0] ?? ""),
+        Image: item?.Image ?? item?.image ?? item?.images?.[0] ?? "",
         price: item?.current_price ?? item?.price ?? item?.harga ?? null,
         tipe: item?.tipe || item?.type || item?.category || "",
       };
@@ -111,26 +108,31 @@ export default function ProductSection({
     if (title !== "Products") return title;
     if (!filtered.length) return "Products";
     const sample = filtered[0];
-    return sample.category ? `Produk ${sample.category}` : "Anda mungkin juga menyukai";
+    return sample.category
+      ? `Produk ${sample.category}`
+      : "Anda mungkin juga menyukai";
   }, [filtered, title]);
 
-  // helper: make slug from label
   const toSlug = (s) =>
-    encodeURIComponent(String(s || "").trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9\-]/g, ""));
+    encodeURIComponent(
+      String(s || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9\-]/g, "")
+    );
 
-  // klik Shop => navigasi ke category dengan seluruh data source `arr`
   const onShopClick = () => {
     const labelCandidate =
       title && title !== "Products"
         ? title
-        : (arr[0]?.tipe || arr[0]?.type || arr[0]?.category || "all");
+        : arr[0]?.tipe || arr[0]?.type || arr[0]?.category || "all";
     const label = String(labelCandidate || "all");
     const slug = toSlug(label);
     navigate(`/category/${slug}`, { state: { items: arr, label } });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // scroll helpers
   const scrollRight = (amount = SCROLL_AMOUNT) => {
     if (!containerRef.current) return;
     containerRef.current.scrollBy({ left: amount, behavior: "smooth" });
@@ -160,7 +162,9 @@ export default function ProductSection({
 
       {/* item */}
       <div ref={containerRef} className="flex overflow-x-auto scrollbar-hide">
-        {filtered.length === 0 && <p className="px-4 text-sm text-gray-500">No items found.</p>}
+        {filtered.length === 0 && (
+          <p className="px-4 text-sm text-gray-500">No items found.</p>
+        )}
         {filtered.map((item) => {
           const idStr = String(item.id ?? item._id);
           const isLiked = liked.includes(idStr);
@@ -178,7 +182,9 @@ export default function ProductSection({
                     className="absolute right-2 top-2 z-10 bg-white/60 rounded-full p-1"
                   >
                     <svg
-                      className={`w-[24px] h-[24px] cursor-pointer ${isLiked ? "text-black" : "text-gray-200"}`}
+                      className={`w-[24px] h-[24px] cursor-pointer ${
+                        isLiked ? "text-black" : "text-gray-200"
+                      }`}
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -192,13 +198,19 @@ export default function ProductSection({
                   </button>
                 )}
                 <div className={`h-56 w-52 bg-[${item.warna ?? "#fff"}]`}>
-                  <img src={item.Image} alt={item.name} className="object-cover w-full h-full" />
+                  <img
+                    src={item.Image}
+                    alt={item.name}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
               </div>
 
               <div className="p-2 text-sm">
                 <h1 className="text-gray-500">{item.tipe}</h1>
-                <p className="mt-2 text-zinc-700 truncate w-full">{item.name}</p>
+                <p className="mt-2 text-zinc-700 truncate w-full">
+                  {item.name}
+                </p>
                 <h1 className="block ">{formatToIDR(item.price)}</h1>
               </div>
             </div>

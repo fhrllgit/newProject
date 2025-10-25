@@ -155,6 +155,24 @@ const CheckoutPage = () => {
     }
   }, [activeTab, token]);
 
+  useEffect(() => {
+    if (activeTab === "HISTORY" && token) {
+      const fetchHistory = async () => {
+        try {
+          const res = await fetch("http://localhost:3005/api/orders/history", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          setOrders(data);
+        } catch (err) {
+          console.error(err);
+          setOrders([]);
+        }
+      };
+      fetchHistory();
+    }
+  }, [activeTab, token]);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
@@ -201,21 +219,20 @@ const CheckoutPage = () => {
 
               {/* route category */}
               <div className="mt-4 pt-3 border-t border-gray-100">
-                <div className="flex gap-8">
+                <div className="flex gap-6 md:gap-8 overflow-x-auto scrollbar-hide md:overflow-x-visible">
                   <button
                     onClick={() => setActiveTab("DETAIL_PESANAN")}
-                    className={`text-sm cursor-pointer font-extrabold transition-all ${
+                    className={`text-sm cursor-pointer font-extrabold transition-all whitespace-nowrap ${
                       activeTab === "DETAIL_PESANAN" ? "underline" : ""
                     }`}
                   >
                     DETAIL PESANAN
                   </button>
-
                   <button
                     onClick={() =>
                       isDetailComplete && setActiveTab("PESANAN_DIBUAT")
                     }
-                    className={`text-sm font-extrabold transition-all ${
+                    className={`text-sm font-extrabold transition-all whitespace-nowrap ${
                       isDetailComplete
                         ? activeTab === "PESANAN_DIBUAT"
                           ? "underline cursor-pointer text-black"
@@ -224,6 +241,16 @@ const CheckoutPage = () => {
                     }`}
                   >
                     PESANAN DIBUAT
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("HISTORY")}
+                    className={`text-sm font-extrabold cursor-pointer transition-all whitespace-nowrap ${
+                      activeTab === "HISTORY"
+                        ? "underline cursor-pointer text-black"
+                        : "text-black"
+                    }`}
+                  >
+                    HISTORY PESANAN
                   </button>
                 </div>
               </div>
@@ -391,7 +418,6 @@ const CheckoutPage = () => {
                 </span>
               </div>
             </div>
-
             <button
               onClick={async () => {
                 if (!selectedAddress) {
@@ -432,17 +458,13 @@ const CheckoutPage = () => {
                 }));
 
                 const orderData = {
-                  userId: user.id,
-                  address: JSON.stringify(selectedAddress),
+                  address: selectedAddress, 
                   paymentMethod: selectedPayment,
-                  items: JSON.stringify(items),
+                  items: items, 
                   totalAfterDiscount: checkoutData.totalAfterDiscount || 0,
-                  status: "Diproses",
-                  createdAt: new Date().toISOString(),
                 };
 
                 try {
-                  // post
                   const res = await fetch("http://localhost:3005/api/orders", {
                     method: "POST",
                     headers: {
@@ -624,7 +646,7 @@ const CheckoutPage = () => {
                 Kamu belum memiliki pesanan.
               </p>
               <button
-                onClick={() => navigate("/produk")}
+                onClick={() => navigate("/")}
                 className="mt-4 bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800"
               >
                 Belanja Sekarang
@@ -692,6 +714,76 @@ const CheckoutPage = () => {
                     </div>
                   );
                 })}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {activeTab === "HISTORY" && (
+        <div className="container mt-28 px-6 sm:px-12 lg:px-20 mx-auto">
+          <h2 className="text-lg sm:text-xl font-bold mb-4">
+            Riwayat Pesanan Anda
+          </h2>
+
+          {orders.length === 0 ? (
+            <p className="text-gray-500">Belum ada pesanan selesai.</p>
+          ) : (
+            orders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-white p-4 rounded-xl shadow mb-4"
+              >
+                <div className="flex justify-between text-sm font-light">
+                  <span>Status Pesanan:</span>
+                  <span className="font-medium">{order.status}</span>
+                </div>
+
+                <div className="flex justify-between text-sm font-light">
+                  <span>Tanggal:</span>
+                  <span>{new Date(order.createdAt).toLocaleString()}</span>
+                </div>
+
+                <div className="flex justify-between text-sm font-light">
+                  <span>Total Produk:</span>
+                  <span>Rp. {order.totalAfterDiscount.toLocaleString()}</span>
+                </div>
+
+                <hr />
+
+                {order.items.map((item, i) => (
+                  <div
+                    key={`${item.id}-${i}`}
+                    className="flex items-center gap-3 border-t pt-2"
+                  >
+                    <img
+                      src={item.Image}
+                      className="w-20 h-auto rounded-md"
+                      alt={item.Name}
+                    />
+                    <div className="flex-1 flex flex-col">
+                      <p className="text-xs font-semibold">{item.Name}</p>
+                      {item.Size && (
+                        <p className="text-xs text-gray-500">
+                          Size: {item.Size}
+                        </p>
+                      )}
+                      {item.Variasi && (
+                        <p className="text-xs text-gray-500">
+                          Warna: {item.Variasi}
+                        </p>
+                      )}
+                      <p className="text-xs text-gray-500">
+                        Jumlah: {item.Quantity} × Rp{" "}
+                        {item.Discount || item.Price}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Total: Rp{" "}
+                        {(item.Discount || item.Price) * item.Quantity}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             ))
           )}

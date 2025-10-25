@@ -3,7 +3,6 @@ const db = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "",
-    // database: "",
     database: "backendLomba",
     port: 3307
 })

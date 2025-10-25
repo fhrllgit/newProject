@@ -15,26 +15,32 @@ exports.getTransactionSummary = (req, res) => {
   db.query(summarySql, (err, result) => {
     if (err) {
       console.error("❌ SQL Error getTransactionSummary:", err);
-      return res.status(500).json({ message: "Gagal mengambil ringkasan transaksi" });
+      return res
+        .status(500)
+        .json({ message: "Gagal mengambil ringkasan transaksi" });
     }
 
     const topProductsSql = `
-      SELECT product_name, SUM(quantity) AS total_terjual
-      FROM order_items
-      GROUP BY product_name
-      ORDER BY total_terjual DESC
-      LIMIT 10
-    `;
+  SELECT oi.product_name, SUM(oi.quantity) AS total_terjual
+  FROM order_items oi
+  JOIN orders o ON oi.order_id = o.id
+  WHERE o.status = 'SELESAI'   -- hanya order selesai
+  GROUP BY oi.product_name
+  ORDER BY total_terjual DESC
+  LIMIT 10
+`;
 
     db.query(topProductsSql, (err2, products) => {
       if (err2) {
         console.error("❌ SQL Error topProducts:", err2);
-        return res.status(500).json({ message: "Gagal mengambil produk terlaris" });
+        return res
+          .status(500)
+          .json({ message: "Gagal mengambil produk terlaris" });
       }
-
+      console.log("🔥 Top Products:", products);
       res.json({
         summary: result[0],
-        topProducts: products
+        topProducts: products,
       });
     });
   });
@@ -60,7 +66,9 @@ exports.getTransactionList = (req, res) => {
   db.query(sql, (err, result) => {
     if (err) {
       console.error("❌ SQL Error getTransactionList:", err);
-      return res.status(500).json({ message: "Gagal mengambil daftar transaksi" });
+      return res
+        .status(500)
+        .json({ message: "Gagal mengambil daftar transaksi" });
     }
     res.json(result);
   });

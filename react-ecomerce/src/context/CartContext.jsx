@@ -45,9 +45,6 @@ const updateQuantity = (id, sizeObj, qty) => {
   ));
 };
 
-
-
-
   const clearCart = () => {
     setCart([]);
   };

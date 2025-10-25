@@ -16,5 +16,6 @@ router.put("/:id/status", verifyToken, isAdmin, orderController.updateOrderStatu
 
 // Get orders user
 router.get("/user", verifyToken, orderController.getOrdersUser);
+router.get("/history", verifyToken, orderController.getOrderHistoryUser);
 
 module.exports = router;

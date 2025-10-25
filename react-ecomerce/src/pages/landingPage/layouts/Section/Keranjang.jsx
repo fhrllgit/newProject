@@ -51,21 +51,6 @@ const totalDiscount = cart.reduce((acc, item) => {
     setOpenQtyItems((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // const handleCheckout = () => {
-  //   setLoading(true)
-  //   const checkoutData = {
-  //     items: cart,
-  //     totalNormal,
-  //     totalDiscount,
-  //     totalAfterDiscount,
-  //   };
-  //   console.log(checkoutData);
-  //   localStorage.setItem("checkoutData", JSON.stringify(checkoutData));
-  //   setTimeout(() => {
-  //     setLoading(false)
-  //     navigate("/checkout");
-  //   }, 700);
-  // };
 
   const handleCheckout = () => {
   if (cart.length === 0) {
@@ -75,9 +60,8 @@ const totalDiscount = cart.reduce((acc, item) => {
 
   setLoading(true);
 
-  // Simpan data keranjang ke localStorage
   const checkoutData = {
-    items: cart, // semua produk yang ada di keranjang
+    items: cart, 
     totalNormal,
     totalDiscount,
     totalAfterDiscount,
@@ -90,7 +74,6 @@ const totalDiscount = cart.reduce((acc, item) => {
     navigate("/checkout");
   }, 700);
 };
-
 
 
   return (
@@ -228,11 +211,9 @@ const totalDiscount = cart.reduce((acc, item) => {
               </div>
             </div>
 
-            {/* Spacer - Prevent content jump saat navbar jadi fixed */}
             {isSticky && <div className="h-[120px]" />}
           </div>
 
-          {/* navbar mobile */}
           <div className="flex xl:hidden w-full fixed top-0 left-0 bg-white z-40 border-b py-3 border-b-[#e1e1e1a5] items-center justify-between px-4">
             <h2 className="text-sm font-medium flex-grow text-center">
               {/* {product.name} */}

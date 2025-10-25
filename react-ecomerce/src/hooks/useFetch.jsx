@@ -15,8 +15,6 @@ export const useFetch = (endpoint, options = {}) => {
         setLoading(true);
         const response = await api.get(endpoint, options);
         if (!active) return;
-
-        // dukung berbagai bentuk response backend
         const payload = response?.data?.payload ?? response?.data ?? null;
         setData(payload);
       } catch (err) {

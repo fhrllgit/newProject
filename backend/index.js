@@ -9,6 +9,7 @@ const userRoutes = require("./routes/userRoutes")
 const adminRoutes = require("./routes/adminRoutes")
 const addressRoutes = require("./routes/addressRoutes")
 const orderRoutes = require("./routes/orderRouter")
+const transactions = require("./routes/transaksiRoutes")
 
 const app = express()
 const PORT = 3005
@@ -33,6 +34,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/address", addressRoutes)
 app.use("/api/orders", orderRoutes)
+app.use("/api/transactions", transactions)
 app.listen(PORT, () => {
   console.log(`Server running 🚀  on http://localhost:${PORT}`)
 })

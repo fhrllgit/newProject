@@ -1282,115 +1282,520 @@
 
 
 
+// import React, { useEffect, useState } from "react";
+// import axios from "axios";
+
+// const AdminOrders = () => {
+//   const [orders, setOrders] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   const fetchOrders = async () => {
+//     try {
+//       const token = localStorage.getItem("token");
+//       const res = await axios.get("http://localhost:3005/api/orders", {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       setOrders(res.data);
+//     } catch (error) {
+//       console.error("❌ Gagal mengambil pesanan:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const updateStatus = async (id, newStatus) => {
+//     try {
+//       const token = localStorage.getItem("token");
+//       await axios.put(
+//         `http://localhost:3005/api/orders/${id}/status`,
+//         { status: newStatus },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+//       fetchOrders();
+//     } catch (error) {
+//       console.error("❌ Gagal update status:", error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchOrders();
+//   }, []);
+
+//   if (loading) return <p>Loading...</p>;
+
+//   return (
+//     <div className="container mx-auto mt-24 px-6 sm:px-12">
+//       <h1 className="text-xl font-bold mb-4">Kelola Pesanan</h1>
+//       {orders.length === 0 ? (
+//         <p className="text-gray-500">Belum ada pesanan.</p>
+//       ) : (
+//         <table className="w-full border text-sm">
+//           <thead className="bg-gray-100">
+//             <tr>
+//               <th className="p-2 border">#</th>
+//               <th className="p-2 border">Pelanggan</th>
+//               <th className="p-2 border">Produk</th>
+//               <th className="p-2 border">Total</th>
+//               <th className="p-2 border">Status</th>
+//               <th className="p-2 border">Aksi</th>
+//             </tr>
+//           </thead>
+//           <tbody>
+//             {orders.map((o, i) => (
+//               <tr key={o.order_id}>
+//                 <td className="p-2 border text-center">{i + 1}</td>
+//                 <td className="p-2 border">{o.user_name}</td>
+//                 <td className="p-2 border">{o.product_name}</td>
+//                 <td className="p-2 border text-right">
+//                   Rp {o.total_after_discount?.toLocaleString()}
+//                 </td>
+//                 <td className="p-2 border text-center">{o.status}</td>
+// <td className="p-2 border text-center flex items-center gap-2 justify-center">
+//   <select
+//     value={o.status}
+//     onChange={(e) =>
+//       setOrders((prev) =>
+//         prev.map((order) =>
+//           order.order_id === o.order_id ? { ...order, status: e.target.value } : order
+//         )
+//       )
+//     }
+//     className="border p-1 rounded text-xs"
+//   >
+//     <option value="DIPROSES">Diproses</option>
+//     <option value="DIKIRIM">Dikirim</option>
+//     <option value="SELESAI">Selesai</option>
+//     <option value="DIBATALKAN">Dibatalkan</option>
+//   </select>
+// <button
+//   onClick={(e) => {
+//     const select = e.target.previousSibling; // ambil <select> sebelum button
+//     updateStatus(o.order_id, select.value);
+//   }}
+//   className="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
+// >
+//   Simpan
+// </button>
+
+// </td>
+
+
+//               </tr>
+//             ))}
+//           </tbody>
+//         </table>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default AdminOrders;
 
 
 
 
-import React, { useEffect, useState } from "react";
-import axios from "axios";
 
-const AdminOrders = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+import React, { useState } from 'react';
 
-  const fetchOrders = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:3005/api/orders", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setOrders(res.data);
-    } catch (error) {
-      console.error("❌ Gagal mengambil pesanan:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function ProfilePage() {
+  // Placeholder functions - ganti dengan function asli Anda
+  const profileMessage = "FAHRUL SETYO ARIF RAHMAN";
+  const navigate = () => {};
+  const handleLogout = () => {};
+  
+  const [activeMenu, setActiveMenu] = useState('informasi-account');
+  const [isEditing, setIsEditing] = useState(false);
 
-  const updateStatus = async (id, newStatus) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `http://localhost:3005/api/orders/${id}/status`,
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+  const renderContent = () => {
+    if (activeMenu === 'informasi-account' && !isEditing) {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          {/* Header with User Icon */}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <svg className="w-6 h-6 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <h1 className="text-xl sm:text-2xl font-bold">Informasi pribadi</h1>
+            </div>
+            <button 
+              onClick={() => setIsEditing(true)}
+              className="text-sm font-medium underline hover:no-underline"
+            >
+              Ubah
+            </button>
+          </div>
+
+          {/* User Information */}
+          <div className="space-y-6 mb-8">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Alamat email
+              </label>
+              <p className="text-base text-gray-900">202451003@std.umk.ac.id</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nama
+              </label>
+              <p className="text-base text-gray-900">{profileMessage}</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ulang Tahun
+              </label>
+              <p className="text-base text-gray-900">-</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <p className="text-base text-gray-900">**********</p>
+            </div>
+          </div>
+
+          {/* Address Section */}
+          <div className="border-t border-gray-200 pt-6">
+            <div className="flex items-center gap-3 mb-6">
+              <svg className="w-6 h-6 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <h2 className="text-xl sm:text-2xl font-bold">Alamat Tersimpan (0)</h2>
+            </div>
+
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="w-32 h-32 mb-6 opacity-20">
+                <svg viewBox="0 0 200 200" fill="none" className="w-full h-full">
+                  <rect x="40" y="20" width="120" height="140" rx="4" stroke="currentColor" strokeWidth="3" fill="none"/>
+                  <circle cx="100" cy="80" r="25" stroke="currentColor" strokeWidth="3" fill="none"/>
+                  <path d="M75 105 Q75 125 100 125 Q125 125 125 105" stroke="currentColor" strokeWidth="3" fill="none"/>
+                  <line x1="60" y1="150" x2="90" y2="150" stroke="currentColor" strokeWidth="3"/>
+                  <line x1="110" y1="150" x2="140" y2="150" stroke="currentColor" strokeWidth="3"/>
+                </svg>
+              </div>
+              <p className="text-gray-600 mb-6">Anda tidak memiliki alamat yang disimpan</p>
+              <button className="bg-gray-900 text-white px-8 py-3 font-medium hover:bg-gray-800 transition-colors">
+                Tambah Alamat Baru
+              </button>
+            </div>
+          </div>
+        </div>
       );
-      fetchOrders();
-    } catch (error) {
-      console.error("❌ Gagal update status:", error);
     }
+
+    if (activeMenu === 'informasi-account' && isEditing) {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setIsEditing(false)}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <h1 className="text-xl sm:text-2xl font-bold">Edit Informasi Pribadi</h1>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Alamat email
+              </label>
+              <input 
+                type="email" 
+                defaultValue="202451003@std.umk.ac.id"
+                className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:border-gray-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nama
+              </label>
+              <input 
+                type="text" 
+                defaultValue={profileMessage}
+                className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:border-gray-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Ulang Tahun
+              </label>
+              <input 
+                type="date"
+                className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:border-gray-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <input 
+                type="password" 
+                defaultValue="**********"
+                className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:border-gray-900"
+              />
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <button className="flex-1 bg-gray-900 text-white px-6 py-3 font-medium hover:bg-gray-800 transition-colors">
+                Simpan
+              </button>
+              <button 
+                onClick={() => setIsEditing(false)}
+                className="flex-1 border border-gray-900 text-gray-900 px-6 py-3 font-medium hover:bg-gray-100 transition-colors"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'wallet') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">Wallet</h1>
+          <p className="text-gray-600">Saldo Wallet Anda: Rp 0</p>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'cashback') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">Cashback</h1>
+          <p className="text-gray-600">Anda belum memiliki cashback.</p>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'zvip') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">ZVIP Saya</h1>
+          <p className="text-gray-600">Bergabunglah dengan program ZVIP untuk mendapatkan keuntungan eksklusif.</p>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'lacak-pesanan') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">Lacak Pesanan</h1>
+          <p className="text-gray-600">Anda sedang tidak memiliki pesanan.</p>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'gopay') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">Konfigurasi GoPay</h1>
+          <p className="text-gray-600">Hubungkan akun GoPay Anda untuk pembayaran yang lebih mudah.</p>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'ulasan') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">Ulasan Saya</h1>
+          <p className="text-gray-600">Anda belum memberikan ulasan.</p>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'kartu') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">Kartu Saya</h1>
+          <p className="text-gray-600">Anda belum menyimpan kartu pembayaran.</p>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'preferensi-email') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">Preferensi Email</h1>
+          <p className="text-gray-600">Kelola preferensi email Anda.</p>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'wishlist') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6">Wishlist</h1>
+          <p className="text-gray-600">Wishlist Anda masih kosong.</p>
+        </div>
+      );
+    }
+
+    if (activeMenu === 'penghapusan-akun') {
+      return (
+        <div className="bg-white shadow-sm p-4 sm:p-6 lg:p-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-6 text-red-600">Permohonan Penghapusan Akun</h1>
+          <p className="text-gray-600 mb-4">Tindakan ini tidak dapat dibatalkan. Semua data Anda akan dihapus secara permanen.</p>
+          <button className="bg-red-600 text-white px-6 py-3 font-medium hover:bg-red-700 transition-colors">
+            Hapus Akun
+          </button>
+        </div>
+      );
+    }
+
+    return null;
   };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
-
-  if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="container mx-auto mt-24 px-6 sm:px-12">
-      <h1 className="text-xl font-bold mb-4">Kelola Pesanan</h1>
-      {orders.length === 0 ? (
-        <p className="text-gray-500">Belum ada pesanan.</p>
-      ) : (
-        <table className="w-full border text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="p-2 border">#</th>
-              <th className="p-2 border">Pelanggan</th>
-              <th className="p-2 border">Produk</th>
-              <th className="p-2 border">Total</th>
-              <th className="p-2 border">Status</th>
-              <th className="p-2 border">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((o, i) => (
-              <tr key={o.order_id}>
-                <td className="p-2 border text-center">{i + 1}</td>
-                <td className="p-2 border">{o.user_name}</td>
-                <td className="p-2 border">{o.product_name}</td>
-                <td className="p-2 border text-right">
-                  Rp {o.total_after_discount?.toLocaleString()}
-                </td>
-                <td className="p-2 border text-center">{o.status}</td>
-<td className="p-2 border text-center flex items-center gap-2 justify-center">
-  <select
-    value={o.status}
-    onChange={(e) =>
-      setOrders((prev) =>
-        prev.map((order) =>
-          order.order_id === o.order_id ? { ...order, status: e.target.value } : order
-        )
-      )
-    }
-    className="border p-1 rounded text-xs"
-  >
-    <option value="DIPROSES">Diproses</option>
-    <option value="DIKIRIM">Dikirim</option>
-    <option value="SELESAI">Selesai</option>
-    <option value="DIBATALKAN">Dibatalkan</option>
-  </select>
-<button
-  onClick={(e) => {
-    const select = e.target.previousSibling; // ambil <select> sebelum button
-    updateStatus(o.order_id, select.value);
-  }}
-  className="bg-blue-500 text-white text-xs px-2 py-1 rounded hover:bg-blue-600"
->
-  Simpan
-</button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Top Bar */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between text-xs sm:text-sm">
+            <div className="flex items-center gap-4 sm:gap-8 overflow-x-auto">
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h18v18H3V3z" />
+                </svg>
+                <span>GRATIS ONGKIR UNTUK PESANAN MIN. 900RB</span>
+              </div>
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <rect x="3" y="5" width="18" height="14" rx="2" strokeWidth={2}/>
+                </svg>
+                <span>CHAT DENGAN KAMI</span>
+              </div>
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>KONTAK RESMI ADIDAS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-</td>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+          {/* Sidebar */}
+          <div className="w-full lg:w-80 xl:w-96 flex-shrink-0">
+            <div className="bg-white shadow-sm">
+              <div className="border-b border-gray-200 p-4 sm:p-6">
+                <h2 className="text-lg font-bold mb-4">AKUN SAYA</h2>
+                <button 
+                  onClick={() => { setActiveMenu('informasi-account'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 font-medium transition-colors ${
+                    activeMenu === 'informasi-account' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Informasi Account
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('wallet'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors border-b border-gray-100 ${
+                    activeMenu === 'wallet' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Wallet
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('cashback'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors border-b border-gray-100 ${
+                    activeMenu === 'cashback' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Cashback
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('zvip'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors border-b border-gray-100 ${
+                    activeMenu === 'zvip' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  ZVIP Saya
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('lacak-pesanan'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors border-b border-gray-100 ${
+                    activeMenu === 'lacak-pesanan' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Lacak Pesanan
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('gopay'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors border-b border-gray-100 ${
+                    activeMenu === 'gopay' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Konfigurasi GoPay
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('ulasan'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors border-b border-gray-100 ${
+                    activeMenu === 'ulasan' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Ulasan saya
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('kartu'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors border-b border-gray-100 ${
+                    activeMenu === 'kartu' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Kartu Saya
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('preferensi-email'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors border-b border-gray-100 ${
+                    activeMenu === 'preferensi-email' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Preferensi Email
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('wishlist'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors border-b border-gray-100 ${
+                    activeMenu === 'wishlist' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Wishlist
+                </button>
+                <button 
+                  onClick={() => { setActiveMenu('penghapusan-akun'); setIsEditing(false); }}
+                  className={`w-full text-left px-4 py-3 transition-colors ${
+                    activeMenu === 'penghapusan-akun' ? 'bg-gray-700 text-white' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  Permohonan Penghapusan Akun
+                </button>
+              </div>
+            </div>
+          </div>
 
-
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          {/* Main Content Area */}
+          <div className="flex-1">
+            {renderContent()}
+          </div>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default AdminOrders;
+}

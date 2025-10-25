@@ -1,40 +1,188 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { PiUserLight } from "react-icons/pi";
+import { IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowBack } from "react-icons/io";
+import { PiWarningCircleLight } from "react-icons/pi";
+import Riwayat from "../pages/user/userRiwayat";
+import Ordering from "../pages/user/order";
 
 const UserProfile = () => {
-  const [profileMessage, setProfileMessage] = useState("");
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const [activeMenu, setActiveMenu] = useState("informasi-account");
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [userEdit, setUserEdit] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+  });
+
+  const [passwords, setPasswords] = useState({
+    old_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState({ type: "", text: "" });
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem("token");
+    if (!token) return;
+    setLoading(true);
+    axios
+      .get("http://localhost:3005/api/users/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        const u = res.data.user || {};
+        setUserEdit({
+          first_name: u.first_name || "",
+          last_name: u.last_name || "",
+          email: u.email || "",
+        });
+      })
+      .catch((err) => {
+        console.error("Gagal ambil profile:", err);
+        setMsg({ type: "error", text: "Gagal mengambil data profile." });
+      })
+      .finally(() => setLoading(false));
+  }, [token]);
 
-      if (!token) {
-        navigate("/login");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserEdit((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePassChange = (e) => {
+    const { name, value } = e.target;
+    setPasswords((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setMsg({ type: "", text: "" });
+
+    if (!userEdit.first_name || !userEdit.last_name) {
+      setMsg({ type: "error", text: "Nama depan & belakang harus diisi." });
+      return;
+    }
+
+    const wantsChangePassword =
+      passwords.old_password ||
+      passwords.new_password ||
+      passwords.confirm_password;
+
+    if (wantsChangePassword) {
+      if (
+        !passwords.old_password ||
+        !passwords.new_password ||
+        !passwords.confirm_password
+      ) {
+        setMsg({
+          type: "error",
+          text: "Lengkapi semua field password untuk mengganti password.",
+        });
         return;
       }
-
-      try {
-        const res = await fetch("http://localhost:3005/api/users/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      if (passwords.new_password !== passwords.confirm_password) {
+        setMsg({
+          type: "error",
+          text: "Password baru dan konfirmasi tidak cocok.",
         });
-
-        if (!res.ok) {
-          throw new Error("Gagal mengambil profil");
-        }
-
-        const data = await res.json();
-        setProfileMessage(data.message);
-      } catch (err) {
-        console.error(err);
-        navigate("/login");
+        return;
       }
+      if (passwords.new_password.length < 6) {
+        setMsg({ type: "error", text: "Password baru minimal 6 karakter." });
+        return;
+      }
+    }
+    const payload = {
+      first_name: userEdit.first_name,
+      last_name: userEdit.last_name,
     };
 
-    fetchProfile();
-  }, [navigate]);
+    if (wantsChangePassword) {
+      payload.old_password = passwords.old_password;
+      payload.new_password = passwords.new_password;
+      payload.confirm_password = passwords.confirm_password;
+    }
+
+    setLoading(true);
+    axios
+      .put("http://localhost:3005/api/users/profile", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setMsg({
+          type: "success",
+          text: res.data.message || "Profile diperbarui.",
+        });
+
+        if (wantsChangePassword) {
+          setMsg((m) => ({
+            type: "success",
+            text:
+              (res.data.message || "Profile diperbarui.") +
+              " Silakan login kembali dengan password baru.",
+          }));
+        }
+
+        setPasswords({
+          old_password: "",
+          new_password: "",
+          confirm_password: "",
+        });
+      })
+      .catch((err) => {
+        console.error("Gagal update profile:", err);
+        const serverMsg =
+          (err.response && err.response.data && err.response.data.message) ||
+          "Gagal memperbarui profile.";
+        setMsg({ type: "error", text: serverMsg });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch("http://localhost:3005/api/users/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(userEdit),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Gagal update profile");
+
+      const profileRes = await fetch(
+        "http://localhost:3005/api/users/profile",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const profileData = await profileRes.json();
+
+      setUser(profileData.user);
+      setUserEdit({
+        first_name: profileData.user.first_name,
+        last_name: profileData.user.last_name,
+        email: profileData.user.email,
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Gagal update profile");
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -59,117 +207,443 @@ const UserProfile = () => {
     }
   };
 
-  return (
-    <>
-    <div className="min-h-screen bg-white">
-      <div className="border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h18v18H3V3z" />
-                </svg>
-                <span>GRATIS ONGKIR UNTUK PESANAN MIN. 900RB</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <rect x="3" y="5" width="18" height="14" rx="2" strokeWidth={2}/>
-                </svg>
-                <span>CHAT DENGAN KAMI</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>KONTAK RESMI ADIDAS</span>
-              </div>
+  const renderContent = () => {
+    // akun user
+    if (activeMenu === "informasi-account" && !isEditing) {
+      return (
+        <div className="bg-white w-full max-w-2xl shadow-xl rounded-2xl p-4 sm:p-6 lg:p-8">
+          <div className="flex items-center justify-between border-gray-200">
+            <div className="flex items-center gap-3">
+              <PiUserLight size={25} className="" />
+              <h1 className="text-base sm:text-lg">Informasi pribadi</h1>
+            </div>
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-sm sm:text-base font-medium underline hover:no-underline"
+            >
+              Ubah
+            </button>
+          </div>
+
+          {/* User Information */}
+          <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
+            <div className="border-b py-3 mt-4 border-b-black">
+              <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1">
+                Alamat email
+              </label>
+              <p className="text-sm sm:text-base text-gray-900 break-all">
+                {userEdit?.email}
+              </p>
+            </div>
+
+            <div className="py-3 border-b border-b-black">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Nama
+              </label>
+              <p className="text-sm sm:text-base text-gray-900">
+                {userEdit?.first_name}
+              </p>
+            </div>
+
+            <div className="py-3">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <p className="text-sm sm:text-base text-gray-900">**********</p>
             </div>
           </div>
         </div>
-      </div>
+      );
+    }
+    // edit
+    if (activeMenu === "informasi-account" && isEditing) {
+      return (
+        <div className="max-w-2xl">
+          <div className="flex items-center gap-1 text-xs text-gray-600 mb-4 sm:mb-6 overflow-x-auto">
+            <button
+              onClick={() => navigate("/")}
+              className="hover:text-gray-900 cursor-pointer whitespace-nowrap"
+            >
+              Home
+            </button>
+            <IoIosArrowForward className="flex-shrink-0" />
+            <button
+              onClick={() => setIsEditing(false)}
+              className="hover:text-gray-900 cursor-pointer whitespace-nowrap"
+            >
+              Akun Saya
+            </button>
+            <IoIosArrowForward className="flex-shrink-0" />
+            <span className="text-gray-900 whitespace-nowrap">Rincian</span>
+          </div>
+          <div className="bg-white w-full shadow-xl rounded-2xl p-4 sm:p-6 lg:p-8">
+            <div
+              onClick={() => setIsEditing(false)}
+              className="flex cursor-pointer items-center gap-2 sm:gap-3 w-max mb-6 sm:mb-8"
+            >
+              <IoIosArrowBack size={16} />
+              <h1 className="text-sm sm:text-base font-semibold">
+                Informasi pribadi
+              </h1>
+            </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex gap-12">
-          <div className="flex-1">
-            <h1 className="text-4xl font-bold mb-8">HALO {profileMessage}</h1>
+            <div className="space-y-4 sm:space-y-6 max-w-3xl">
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-4 sm:space-y-6 max-w-3xl"
+              >
+                {loading && (
+                  <p className="text-sm text-gray-500">Memproses...</p>
+                )}
 
-            <div className="mb-12">
-              <h2 className="text-xl font-bold mb-6">CUSTOMER DATA MIGRATION</h2>
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-gray-700 flex items-center justify-center">
+                {msg.text && (
+                  <div
+                    className={`p-3 rounded text-sm ${
+                      msg.type === "error"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
+                )}
+
+                <div className="flex flex-col">
+                  <label className="font-normal text-sm sm:text-base text-gray-900">
+                    Alamat email
+                  </label>
+                  <span className="text-sm sm:text-base break-all">
+                    {userEdit.email}
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-sm sm:text-base font-normal text-gray-900 mb-2">
+                    Nama
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">
+                        Nama Pertama
+                      </label>
+                      <input
+                        type="text"
+                        name="first_name"
+                        value={userEdit.first_name}
+                        onChange={handleChange}
+                        className="w-full text-sm sm:text-base rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#b7b6b6] focus:border-gray-900"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">
+                        Nama Akhir
+                      </label>
+                      <input
+                        type="text"
+                        name="last_name"
+                        value={userEdit.last_name}
+                        onChange={handleChange}
+                        className="w-full text-sm sm:text-base rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#b7b6b6] focus:border-gray-900"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm leading-relaxed">
-                    adidas akan melakukan peningkatan sistem segera (tanggal akan segera diumumkan), dan saya menyatakan bahwa saya telah membaca dan memahami{' '}
-                    <a href="#" className="text-blue-600 underline">
-                      syarat dan ketentuan baru
-                    </a>
+
+                <div>
+                  <label className="block text-sm sm:text-base font-normal text-gray-900 mb-2">
+                    Password
+                  </label>
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="relative">
+                      <input
+                        type="password"
+                        name="old_password"
+                        placeholder="Password"
+                        value={passwords.old_password}
+                        onChange={handlePassChange}
+                        className="w-full text-sm sm:text-base placeholder:text-sm rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#b7b6b6] focus:border-gray-900"
+                      />
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        name="new_password"
+                        placeholder="Kata Sandi Baru"
+                        value={passwords.new_password}
+                        onChange={handlePassChange}
+                        className="w-full text-sm sm:text-base placeholder:text-sm px-3 sm:px-4 rounded-xl py-2.5 sm:py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#b7b6b6] focus:border-gray-900"
+                      />
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        name="confirm_password"
+                        placeholder="Konfirmasi Kata Sandi Baru"
+                        value={passwords.confirm_password}
+                        onChange={handlePassChange}
+                        className="w-full text-sm sm:text-base placeholder:text-sm px-3 sm:px-4 rounded-xl py-2.5 sm:py-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#b7b6b6] focus:border-gray-900"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-100 p-3 sm:p-3.5 rounded-xl flex gap-2 sm:gap-3">
+                  <PiWarningCircleLight
+                    size={15}
+                    className="flex-shrink-0 mt-0.5"
+                  />
+                  <p className="text-xs text-gray-700">
+                    Saat memperbarui kata sandi Anda, semua sesi aktif mungkin
+                    perlu login kembali untuk melanjutkan.
                   </p>
+                </div>
+
+                <div className="flex justify-end pt-3 sm:pt-4">
+                  <button
+                    onClick={handleUpdate}
+                    type="submit"
+                    disabled={loading}
+                    className="bg-gray-900 text-white text-sm sm:text-base px-8 sm:px-12 py-2.5 sm:py-3 font-medium hover:bg-gray-800 transition-colors disabled:opacity-60 w-full sm:w-auto"
+                  >
+                    Simpan
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    // riwayat pesanan
+    if (activeMenu === "riwayat-pesanan") {
+      return (
+        <div className="bg-white w-full max-w-2xl shadow-xl rounded-2xl p-4 sm:p-6 lg:p-8">
+          <Riwayat />
+        </div>
+      );
+    }
+    // sukai love
+    if (activeMenu === "sukai-wishlist") {
+      return (
+        <div className="bg-white w-full max-w-2xl shadow-xl rounded-2xl p-4 sm:p-6 lg:p-8">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6">
+            Wish List
+          </h1>
+          <p className="text-sm sm:text-base text-gray-600">Wish List</p>
+        </div>
+      );
+    }
+    // order chekout/informasi cara order
+    if (activeMenu === "ordering") {
+      return (
+        <div className="bg-white w-full max-w-2xl shadow-xl rounded-2xl p-4 sm:p-6 lg:p-8">
+          <Ordering />
+        </div>
+      );
+    }
+    // log out
+    if (activeMenu === "logout") {
+      return (
+        <div className="bg-white w-full max-w-2xl shadow-xl rounded-2xl p-4 sm:p-6 lg:p-8">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-black rounded-full flex items-center justify-center">
+              <svg
+                className="w-6 h-6 sm:w-7 sm:h-7 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+                Keluar Akun
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-500">
+                Konfirmasi untuk keluar
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 border-l-4 border-black p-4 rounded-lg mb-6">
+            <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+              Anda akan keluar dari akun ini. Untuk masuk kembali, silakan login
+              menggunakan email dan password Anda.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <button
+              onClick={handleLogout}
+              className="bg-black text-white text-sm sm:text-base px-6 py-2.5 sm:py-3 font-medium hover:bg-gray-800 transition-all duration-200 w-full sm:flex-1 rounded-lg"
+            >
+              Ya, Keluar Sekarang
+            </button>
+            <button className="bg-white border-2 border-gray-300 text-gray-700 text-sm sm:text-base px-6 py-2.5 sm:py-3 font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 w-full sm:flex-1 rounded-lg">
+              Batal
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  return (
+    <>
+      <div className="min-h-screen bg-gray-50">
+        {/* barrr */}
+        <div className="border-b border-gray-200 bg-white">
+          <div className="max-w-7xl mx-auto px-4 py-2.5 sm:py-3">
+            <div className="flex items-center justify-between text-xs sm:text-sm">
+              <div className="flex items-center gap-3 sm:gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <svg
+                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 3h18v18H3V3z"
+                    />
+                  </svg>
+                  <span className="hidden sm:inline">
+                    GRATIS ONGKIR UNTUK PESANAN MIN. 900RB
+                  </span>
+                  <span className="sm:hidden">GRATIS ONGKIR MIN. 900RB</span>
+                </div>
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <svg
+                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <rect
+                      x="3"
+                      y="5"
+                      width="18"
+                      height="14"
+                      rx="2"
+                      strokeWidth={2}
+                    />
+                  </svg>
+                  <span>CHAT DENGAN KAMI</span>
+                </div>
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <svg
+                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  <span>KONTAK RESMI ADIDAS</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* contennn */}
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
+          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
+            <div className="w-full lg:w-80 xl:w-96 flex-shrink-0">
+              <div className="bg-[#e2e2e2bb] rounded-2xl shadow-sm">
+                <div className="p-4 sm:p-6">
+                  <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">
+                    INFORMASI AKUN
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setActiveMenu("informasi-account");
+                      setIsEditing(false);
+                    }}
+                    className={`w-full text-left px-3 sm:px-4 py-3 sm:py-3.5 items-center flex font-semibold text-xs sm:text-sm tracking-[0.1em] sm:tracking-[0.2em] ${
+                      activeMenu === "informasi-account"
+                        ? "bg-black rounded-xl text-white"
+                        : "rounded-xl hover:underline"
+                    }`}
+                  >
+                    Akun Saya
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveMenu("riwayat-pesanan");
+                      setIsEditing(false);
+                    }}
+                    className={`w-full text-left px-3 sm:px-4 py-3 sm:py-3.5 items-center flex font-semibold text-xs sm:text-sm tracking-[0.1em] sm:tracking-[0.2em] ${
+                      activeMenu === "riwayat-pesanan"
+                        ? "bg-black rounded-xl text-white"
+                        : "rounded-xl hover:underline"
+                    }`}
+                  >
+                    Riwayat Pesanan
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveMenu("sukai-wishlist");
+                      setIsEditing(false);
+                    }}
+                    className={`w-full text-left px-3 sm:px-4 py-3 sm:py-3.5 items-center flex font-semibold text-xs sm:text-sm tracking-[0.1em] sm:tracking-[0.2em] ${
+                      activeMenu === "sukai-wishlist"
+                        ? "bg-black rounded-xl text-white"
+                        : "rounded-xl hover:underline"
+                    }`}
+                  >
+                    Wish List
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveMenu("ordering");
+                      setIsEditing(false);
+                    }}
+                    className={`w-full text-left px-3 sm:px-4 py-3 sm:py-3.5 items-center flex font-semibold text-xs sm:text-sm tracking-[0.1em] sm:tracking-[0.2em] ${
+                      activeMenu === "ordering"
+                        ? "bg-black rounded-xl text-white"
+                        : "rounded-xl hover:underline"
+                    }`}
+                  >
+                    Ordering
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveMenu("logout");
+                      setIsEditing(false);
+                    }}
+                    className={`w-full text-left px-3 sm:px-4 py-3 sm:py-3.5 items-center flex font-semibold text-xs sm:text-sm tracking-[0.1em] sm:tracking-[0.2em] ${
+                      activeMenu === "logout"
+                        ? "bg-black rounded-xl text-white"
+                        : "rounded-xl hover:underline"
+                    }`}
+                  >
+                    Keluar Akun
+                  </button>
                 </div>
               </div>
             </div>
 
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">RECENT ORDERS</h2>
-                <button className="text-sm underline hover:no-underline">
-                  View All
-                </button>
-              </div>
-              <p className="text-gray-600 mb-8">Anda sedang tidak memiliki pesanan.</p>
-              
-              <button 
-                onClick={() => navigate("/")}
-                className="bg-black text-white px-8 py-4 font-bold flex items-center gap-3 hover:bg-gray-800 transition-colors"
-              >
-                BERBELANJA
-              </button>
-            </div>
-          </div>
-
-          <div className="w-80">
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-sm">Bukan {profileMessage}?</span>
-                <button 
-                  onClick={handleLogout}
-                  className="text-sm font-bold underline hover:no-underline"
-                >
-                  KELUAR
-                </button>
-              </div>
-              <div className="text-sm">
-                <button className="block w-full text-left py-2 border-b border-gray-200 hover:bg-gray-50">
-                  Akun Saya
-                </button>
-              </div>
-            </div>
-
-            <nav className="space-y-4 text-sm">
-              <a href="#" className="block hover:underline">Informasi Pribadi</a>
-              <a href="#" className="block hover:underline">Your Preferences</a>
-              <a href="#" className="block hover:underline">Daftar Alamat</a>
-              <a href="#" className="block hover:underline">Riwayat Pesanan</a>
-              <a href="#" className="block hover:underline">Wish List</a>
-            </nav>
-
-            <div className="mt-12">
-              <h3 className="text-lg font-bold mb-4">NEED HELP?</h3>
-              <nav className="space-y-3 text-sm">
-                <a href="#" className="block hover:underline">Ordering</a>
-                <a href="#" className="block hover:underline">Promotions & Vouchers</a>
-                <a href="#" className="block hover:underline">Payment</a>
-                <a href="#" className="block hover:underline">Delivery</a>
-                <a href="#" className="block hover:underline">Returns and Refunds</a>
-              </nav>
-            </div>
+            <div className="flex-1 min-w-0">{renderContent()}</div>
           </div>
         </div>
       </div>
-    </div>
     </>
   );
 };
