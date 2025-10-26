@@ -34,9 +34,9 @@ export default function RightAdminLaporan() {
       </h1>
 
       {/* RINGKASAN */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white shadow-md rounded-xl p-4 text-center">
-          <h3 className="text-sm text-gray-600">Total Pendapatan</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="p-6 bg-gradient-to-br from-gray-900 to-gray-700 shadow-lg rounded-xl text-white transform hover:scale-105 transition-transform">
+          <h3 className="text-sm text-gray-200">Total Pendapatan</h3>
           <p className="text-2xl font-bold mt-2">
             Rp {Number(data.income.total_income || 0).toLocaleString()}
           </p>
@@ -45,15 +45,15 @@ export default function RightAdminLaporan() {
         {data.orders.map((o) => (
           <div
             key={o.status}
-            className="bg-white shadow-md rounded-xl p-4 text-center"
-          >
-            <h3 className="text-sm text-gray-600">Pesanan {o.status}</h3>
+            className="p-6 bg-gradient-to-br from-gray-800 via-gray-600 to-gray-500 shadow-lg rounded-xl text-white transform hover:scale-105 transition-transform"
+            >
+            <h3 className="text-sm text-gray-200">Pesanan {o.status}</h3>
             <p className="text-2xl font-bold mt-2">{o.total_orders}</p>
           </div>
         ))}
 
-        <div className="bg-white shadow-md rounded-xl p-4 text-center">
-          <h3 className="text-sm text-gray-600">Total Produk Terjual</h3>
+        <div className="p-6 bg-gradient-to-br from-gray-600 via-gray-400 to-gray-300 shadow-lg rounded-xl text-white transform hover:scale-105 transition-transform">
+          <h3 className="text-sm text-gray-200">Total Produk Terjual</h3>
           <p className="text-2xl font-bold mt-2">
             {data.sales.reduce((a, b) => a + Number(b.total_quantity), 0)}
           </p>
