@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { PiUserLight } from "react-icons/pi";
-import { IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowForward, IoIosArrowRoundBack } from "react-icons/io";
 import { IoIosArrowBack } from "react-icons/io";
 import { PiWarningCircleLight } from "react-icons/pi";
 import Riwayat from "../pages/user/userRiwayat";
@@ -37,9 +37,12 @@ const UserProfile = () => {
     if (!token) return;
     setLoading(true);
     axios
-      .get("http://localhost:3005/api/users/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get(
+        "https://backendlombaecomerce-production.up.railway.app/api/users/profile",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
       .then((res) => {
         const u = res.data.user || {};
         setUserEdit({
@@ -116,9 +119,13 @@ const UserProfile = () => {
 
     setLoading(true);
     axios
-      .put("http://localhost:3005/api/users/profile", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .put(
+        "https://backendlombaecomerce-production.up.railway.app/api/users/profile",
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      )
       .then((res) => {
         setMsg({
           type: "success",
@@ -154,20 +161,23 @@ const UserProfile = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch("http://localhost:3005/api/users/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(userEdit),
-      });
+      const res = await fetch(
+        "https://backendlombaecomerce-production.up.railway.app/api/users/profile",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(userEdit),
+        }
+      );
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Gagal update profile");
 
       const profileRes = await fetch(
-        "http://localhost:3005/api/users/profile",
+        "https://backendlombaecomerce-production.up.railway.app/api/users/profile",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -195,12 +205,15 @@ const UserProfile = () => {
         return;
       }
 
-      await fetch("http://localhost:3005/api/users/logout", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await fetch(
+        "https://backendlombaecomerce-production.up.railway.app/api/users/logout",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       localStorage.removeItem("token");
       navigate("/login");
@@ -208,7 +221,8 @@ const UserProfile = () => {
       console.error("Gagal logout:", err);
     }
   };
-  const { favorites, addFavorite, removeFavorite, isFavorite, clearFavorites } = useFavorites();
+  const { favorites, addFavorite, removeFavorite, isFavorite, clearFavorites } =
+    useFavorites();
   const formatToIDR = (number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -217,9 +231,7 @@ const UserProfile = () => {
     }).format(number);
   };
 
-
   const renderContent = () => {
-    
     // akun user
     if (activeMenu === "informasi-account" && !isEditing) {
       return (
@@ -436,85 +448,86 @@ const UserProfile = () => {
     }
     // sukai love
     if (activeMenu === "sukai-wishlist") {
-  return (
-    <div className="bg-white w-full max-w-3xl shadow-xl rounded-2xl p-6 sm:p-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
-          <span>💖</span> Wish List
-        </h1>
-        {favorites.length > 0 && (
-          <button
-            onClick={clearFavorites}
-            className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
-          >
-            Hapus Semua
-          </button>
-        )}
-      </div>
+      return (
+        <div className="bg-white w-full max-w-3xl shadow-xl rounded-2xl p-6 sm:p-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-2">
+              <span>💖</span> Wish List
+            </h1>
+            {favorites.length > 0 && (
+              <button
+                onClick={clearFavorites}
+                className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+              >
+                Hapus Semua
+              </button>
+            )}
+          </div>
 
-      {/* Empty State */}
-      {favorites.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <img
-            src="https://cdn-icons-png.flaticon.com/512/4076/4076500.png"
-            alt="Empty wishlist"
-            className="w-20 h-20 mb-3 opacity-80"
-          />
-          <p className="text-gray-500 text-sm sm:text-base">
-            Belum ada produk favorit kamu disini.
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-hidden border border-gray-200 rounded-xl">
-          <table className="w-full border-collapse text-sm sm:text-base">
-            <thead className="bg-gray-100 text-gray-700">
-              <tr>
-                <th className="py-3 px-4 text-left font-medium">Produk</th>
-                <th className="py-3 px-4 text-left font-medium w-24">Gambar</th>
-                <th className="py-3 px-4 text-left font-medium">Harga</th>
-                <th className="py-3 px-4 text-center font-medium w-24">Aksi</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {favorites.map((item) => (
-                <tr
-                  key={item.id ?? item._id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="py-3 px-4 text-gray-900 text-xs font-medium truncate max-w-[200px]">
-                    {item.name}
-                  </td>
-                  <td className="py-3 px-4">
-                    <img
-                      src={
-                        item.Image
-                      }
-                      alt={item.name}
-                      className="w-12 h-12 object-cover rounded-md border border-gray-200"
-                    />
-                  </td>
-                  <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm">
-                    {formatToIDR(item.price)}
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <button
-                      onClick={() => removeFavorite(item.id ?? item._id)}
-                      className="text-red-600 cursor-pointer hover:text-red-700 text-xs sm:text-sm font-medium transition-colors"
+          {/* Empty State */}
+          {favorites.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/4076/4076500.png"
+                alt="Empty wishlist"
+                className="w-20 h-20 mb-3 opacity-80"
+              />
+              <p className="text-gray-500 text-sm sm:text-base">
+                Belum ada produk favorit kamu disini.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-hidden border border-gray-200 rounded-xl">
+              <table className="w-full border-collapse text-sm sm:text-base">
+                <thead className="bg-gray-100 text-gray-700">
+                  <tr>
+                    <th className="py-3 px-4 text-left font-medium">Produk</th>
+                    <th className="py-3 px-4 text-left font-medium w-24">
+                      Gambar
+                    </th>
+                    <th className="py-3 px-4 text-left font-medium">Harga</th>
+                    <th className="py-3 px-4 text-center font-medium w-24">
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {favorites.map((item) => (
+                    <tr
+                      key={item.id ?? item._id}
+                      className="hover:bg-gray-50 transition-colors"
                     >
-                      Hapus
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <td className="py-3 px-4 text-gray-900 text-xs font-medium truncate max-w-[200px]">
+                        {item.name}
+                      </td>
+                      <td className="py-3 px-4">
+                        <img
+                          src={item.Image}
+                          alt={item.name}
+                          className="w-12 h-12 object-cover rounded-md border border-gray-200"
+                        />
+                      </td>
+                      <td className="py-3 px-4 text-gray-600 text-xs sm:text-sm">
+                        {formatToIDR(item.price)}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <button
+                          onClick={() => removeFavorite(item.id ?? item._id)}
+                          className="text-red-600 cursor-pointer hover:text-red-700 text-xs sm:text-sm font-medium transition-colors"
+                        >
+                          Hapus
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      )}
-    </div>
-  );
-}
-
+      );
+    }
 
     // order chekout/informasi cara order
     if (activeMenu === "ordering") {
@@ -581,9 +594,18 @@ const UserProfile = () => {
 
   return (
     <>
-    <Navbar />
+      <Navbar />
       <div className="min-h-screen bg-gray-50">
         {/* contennn */}
+        <div
+          onClick={() => navigate(-1)}
+          className="lg:flex ml-5 mt-2 w-max items-center hidden  gap-1.5 hover:bg-black hover:text-white h-5"
+        >
+          <IoIosArrowRoundBack size={30} strokeWidth={2} />
+          <h1 className="text-[12px] tracking-widest underline cursor-pointer font-semibold">
+            KEMBALI
+          </h1>
+        </div>
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 lg:py-8">
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8">
             <div className="w-full lg:w-80 xl:w-96 flex-shrink-0">

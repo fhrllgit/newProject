@@ -184,13 +184,20 @@ export default function BuyProduct() {
   };
 
   // card
+  const [alertMsg, setAlertMsg] = useState(null);
+  const [alertType, setAlertType] = useState("info");
+
   const handleAddToCart = () => {
     if (!selected) {
-      alert("Silakan pilih ukuran terlebih dahulu!");
+      setAlertMsg("Silakan pilih ukuran terlebih dahulu!");
+      setAlertType("warning");
+      setTimeout(() => setAlertMsg(null), 2500);
       return;
     }
     addToCart(product, selected);
-    alert("Produk berhasil ditambahkan ke keranjang!");
+    setAlertMsg("Produk berhasil ditambahkan ke keranjang!");
+    setAlertType("success");
+    setTimeout(() => setAlertMsg(null), 2500);
   };
 
   return (
@@ -204,7 +211,7 @@ export default function BuyProduct() {
         <section className="scrollbar-hide overflow-x-auto max-h-screen flex-1/2">
           <div
             className={`w-full cursor-pointer overflow-x-auto flex  justify-center items-end relative max-h-150 min-h-150 group bg-[${product.warna}]`}
-            >
+          >
             <div
               onClick={handlePrev}
               className="p-3 left-0 top-1/2 hover:bg-black hover:text-white bg-white flex items-center border justify-center cursor-pointer absolute z-10 ml-8"
@@ -261,17 +268,27 @@ export default function BuyProduct() {
                     {product.variasi}
                   </p>
                   <span className="font-semibold text-md">
-            <span className="flex gap-2 items-end">
-              <h2>{formatToIDR(product.price - product.discount)}</h2>
-              <h2 className="text-xs line-through text-[#adadad]">{formatToIDR(product.price)}</h2>
-            </span>
-            {product.discount ? (
-              <span className="text-sm text-red-500">
-                <span className="text-black text-xs font-light">Anda menghemat </span>
-                {formatToIDR(product.discount)}
-              </span>
-            ) : null}
-          </span>
+                    {product.discount > 0 ? (
+                      <span className="flex flex-col gap-1">
+                        <span className="flex gap-2 items-end">
+                          <h2>
+                            {formatToIDR(product.price - product.discount)}
+                          </h2>
+                          <h2 className="text-xs line-through text-[#adadad]">
+                            {formatToIDR(product.price)}
+                          </h2>
+                        </span>
+                        <span className="text-sm text-red-500">
+                          <span className="text-black text-xs font-light">
+                            Anda menghemat{" "}
+                          </span>
+                          {formatToIDR(product.discount)}
+                        </span>
+                      </span>
+                    ) : (
+                      <h2>{formatToIDR(product.price)}</h2>
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
@@ -446,9 +463,10 @@ export default function BuyProduct() {
 
               <div className="flex items-center gap-3 mt-5">
                 <div className="border flex-1 pb-0.5 ">
-                  <div 
-                  onClick={handleAddToCart}
-                  className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5">
+                  <div
+                    onClick={handleAddToCart}
+                    className="bg-black w-full flex gap-3 items-center cursor-pointer justify-center hover:text-gray-400 -mt-0.5 h-12 -ml-0.5"
+                  >
                     <p className="text-xs font-bold text-white tracking-[0.2em]">
                       TAMBAH KE KERANJANG
                     </p>
@@ -508,16 +526,16 @@ export default function BuyProduct() {
             </section>
           </Element>
           <div className="relative pt-8">
-        <ProductSection
-          title="Mungkin anda juga menyukai"
-          endpoint="/products/product"
-          filterFn={(item) => true}
-          sortFn={(a, b) => a.price - b.price}
-          onItemClick={(item) =>
-            navigate(`/product/${item.id}`, { state: item })
-          }
-        />
-      </div>
+            <ProductSection
+              title="Mungkin anda juga menyukai"
+              endpoint="/products/product"
+              filterFn={(item) => true}
+              sortFn={(a, b) => a.price - b.price}
+              onItemClick={(item) =>
+                navigate(`/product/${item.id}`, { state: item })
+              }
+            />
+          </div>
         </section>
 
         {/* kanan */}
@@ -534,16 +552,24 @@ export default function BuyProduct() {
             {product.variasi}
           </p>
           <span className="font-semibold text-md">
-            <span className="flex gap-2 items-end">
-              <h2>{formatToIDR(product.price - product.discount)}</h2>
-              <h2 className="text-xs line-through text-[#adadad]">{formatToIDR(product.price)}</h2>
-            </span>
-            {product.discount ? (
-              <span className="text-sm text-red-500">
-                <span className="text-black text-xs font-light">Anda menghemat </span>
-                {formatToIDR(product.discount)}
+            {product.discount > 0 ? (
+              <span className="flex flex-col gap-1">
+                <span className="flex gap-2 items-end">
+                  <h2>{formatToIDR(product.price - product.discount)}</h2>
+                  <h2 className="text-xs line-through text-[#adadad]">
+                    {formatToIDR(product.price)}
+                  </h2>
+                </span>
+                <span className="text-sm text-red-500">
+                  <span className="text-black text-xs font-light">
+                    Anda menghemat{" "}
+                  </span>
+                  {formatToIDR(product.discount)}
+                </span>
               </span>
-            ) : null}
+            ) : (
+              <h2>{formatToIDR(product.price)}</h2>
+            )}
           </span>
           <div className="mt-5">
             <p className="text-[11px] font-semibold tracking-widest">
@@ -781,7 +807,16 @@ export default function BuyProduct() {
           </div>
         </div>
       </div>
-        <Footer />
+      <Footer />
+      {alertMsg && (
+        <div
+          className={`fixed top-10 z-50 right-1/2 translate-x-1/2 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white 
+          transition-all duration-300 ease-in-out
+          ${alertType === "warning" ? "bg-[#bdbdbd]" : "bg-green-600"}`}
+        >
+          {alertMsg}
+        </div>
+      )}
     </div>
   );
 }

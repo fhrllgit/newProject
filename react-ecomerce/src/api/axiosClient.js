@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:3005/api",
+  baseURL: "https://backendlombaecomerce-production.up.railway.app/api",
 });
 
 axiosClient.interceptors.request.use((config) => {

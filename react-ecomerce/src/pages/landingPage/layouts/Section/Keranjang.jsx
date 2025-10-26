@@ -76,6 +76,14 @@ const totalDiscount = cart.reduce((acc, item) => {
   }, 700);
 };
 
+const formatToIDR = (number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(number);
+  };
+
 
   return (
     <>
@@ -226,16 +234,16 @@ const totalDiscount = cart.reduce((acc, item) => {
                                           strokeWidth={1}
                                         />
                                         <span className="text-red-800 font-semibold text-sm sm:text-md">
-                                          Rp {item.discount.toLocaleString()}
+                                          {formatToIDR(item.discount.toLocaleString())}
                                         </span>
                                         <span className="text-[#6d6d6d] font-normal ml-1 line-through text-xs">
-                                          Rp {item.price.toLocaleString()}
+                                          {formatToIDR(item.price.toLocaleString())}
                                         </span>
                                       </div>
                                     </>
                                   ) : (
                                     <span className="text-black font-bold text-sm sm:text-md">
-                                      Rp {item.price.toLocaleString()}
+                                      {formatToIDR(item.price.toLocaleString())}
                                     </span>
                                   )}
                                 </div>
@@ -253,10 +261,7 @@ const totalDiscount = cart.reduce((acc, item) => {
                                   />
                                   <span className="text-xs">Diskon</span>
                                   <span className="text-black font-bold text-xs">
-                                    Rp{" "}
-                                    {(
-                                      item.price - item.discount
-                                    ).toLocaleString()}
+                                    {formatToIDR(item.price - item.discount).toLocaleString()}
                                   </span>
                                 </div>
                               </div>

@@ -11,7 +11,7 @@ export default function RightAdminLaporan() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3005/api/laporan/full")
+    fetch("https://backendlombaecomerce-production.up.railway.app/api/laporan/full")
       .then((res) => res.json())
       .then((result) => {
         setData(result);

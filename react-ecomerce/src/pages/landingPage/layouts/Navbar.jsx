@@ -8,6 +8,7 @@ import {
   HiOutlineShoppingBag,
   HiOutlineMenu,
   HiOutlineX,
+  HiOutlineUserCircle,
 } from "react-icons/hi";
 import { BsTruck } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
@@ -161,6 +162,15 @@ export default function Navbar() {
                     <div className="absolute right-0 mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-lg rounded-xl bg-white z-40">
                       <div className="p-3">
                         <div className="flex items-center gap-3">
+                          <HiOutlineUserCircle />
+                          <button
+                            onClick={() => navigate("/user-profile")}
+                            className="hover:underline cursor-pointer text-sm"
+                            >
+                            Profil
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-3">
                           <CiLogin size={18} strokeWidth={0.5} />
                           <div className="text-sm flex items-center gap-1 font-light">
                             <button
@@ -216,7 +226,6 @@ export default function Navbar() {
                   </div>
                 </div>
               </div>
-
               {/* kategori */}
               <div className="mt-4 pt-3 border-t border-gray-100">
                 <div className="flex gap-8">
@@ -247,7 +256,6 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
-
             {/* tablet & mobile modern bar */}
             <div className="flex lg:hidden items-center justify-between px-4 py-3 border-b border-gray-200 bg-white shadow-sm">
               <img
@@ -255,7 +263,6 @@ export default function Navbar() {
                 alt="Logo"
                 className="h-8 w-auto object-contain"
               />
-
               {/* ikon kanan */}
               <div className="flex items-center gap-4">
                 <FiSearch

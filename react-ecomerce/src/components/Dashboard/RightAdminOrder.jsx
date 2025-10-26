@@ -9,7 +9,7 @@ const AdminOrders = () => {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:3005/api/orders", {
+      const res = await axios.get("https://backendlombaecomerce-production.up.railway.app/api/orders", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setOrders(res.data);
@@ -24,7 +24,7 @@ const AdminOrders = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:3005/api/orders/${id}/status`,
+        `https://backendlombaecomerce-production.up.railway.app/api/orders/${id}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -24,7 +24,7 @@ const EditProductPage = () => {
       }
       try {
         const res = await axios.get(
-          `http://localhost:3005/api/products/product/${id}`
+          `https://backendlombaecomerce-production.up.railway.app/api/products/product/${id}`
         );
         console.log("Product fetched:", res.data);
         setProduct(res.data);
@@ -72,7 +72,7 @@ const EditProductPage = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:3005/api/category");
+        const res = await axios.get("https://backendlombaecomerce-production.up.railway.app/api/category");
         console.log("Categories Response:", res.data);
         if (res.data && res.data[0]?.payload) {
           setCategories(res.data[0].payload);
@@ -267,7 +267,7 @@ const handleRemoveSizeGuideRow = (rowIdx) => {
         fdUpload.append("singleFile", newMainFile);
 
         const uploadRes = await axios.post(
-          "http://localhost:3005/api/uploads/singleUpload",
+          "https://backendlombaecomerce-production.up.railway.app/api/uploads/singleUpload",
           fdUpload,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -281,7 +281,7 @@ const handleRemoveSizeGuideRow = (rowIdx) => {
         newDetailFiles.forEach((file) => fdMulti.append("multipleFile", file));
 
         const resMulti = await axios.post(
-          "http://localhost:3005/api/uploads/multipleUpload",
+          "https://backendlombaecomerce-production.up.railway.app/api/uploads/multipleUpload",
           fdMulti,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -303,7 +303,7 @@ const handleRemoveSizeGuideRow = (rowIdx) => {
       }
 
       const res = await axios.put(
-        `http://localhost:3005/api/products/put/product/${product.id}`,
+        `https://backendlombaecomerce-production.up.railway.app/api/products/put/product/${product.id}`,
         fd,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

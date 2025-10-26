@@ -5,7 +5,7 @@ export const useAddress = (userId, token) => {
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = "http://localhost:3005/api/address";
+  const API_URL = "https://backendlombaecomerce-production.up.railway.app/api/address";
 
 const fetchAddresses = async () => {
   try {
@@ -23,7 +23,7 @@ const fetchAddresses = async () => {
 
   const addAddress = async (data) => {
     try {
-       console.log("📦 Token dikirim:", token);
+      console.log("📦 Token dikirim:", token);
       await axios.post(API_URL, data, {
         headers: { Authorization: `Bearer ${token}` },
       });

@@ -12,7 +12,7 @@ const OrderHistory = ({ token }) => {
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3005/api/orders/history", {
+        const res = await fetch("https://backendlombaecomerce-production.up.railway.app/api/orders/history", {
           headers: { Authorization: `Bearer ${token}` },
         });
 

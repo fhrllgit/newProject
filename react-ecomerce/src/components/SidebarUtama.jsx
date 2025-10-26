@@ -14,7 +14,7 @@ import { TbLogout2 } from "react-icons/tb";
 import { IoClose } from "react-icons/io5";
 import RightDashboard from "./Dashboard/RightAdminDashboard";
 import { BsCart } from "react-icons/bs";
-import RightAdmin from "./Dashboard/RightAdmin";
+import RightAdmin from "../components/Dashboard/RightAdmin";
 
 const Dashboard = () => {
   const navigate = useNavigate();

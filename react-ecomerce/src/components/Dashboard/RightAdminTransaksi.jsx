@@ -14,7 +14,7 @@ const DashboardTransaksi = () => {
       try {
         setLoading(true);
 
-        const BASE_URL = "http://localhost:3005/api/transactions";
+        const BASE_URL = "https://backendlombaecomerce-production.up.railway.app/api/transactions";
 
         const summaryRes = await axios.get(`${BASE_URL}/summary`, {
           headers: { Authorization: `Bearer ${token}` },

@@ -36,7 +36,7 @@ const Dashboard = () => {
       if (maxStock) params.maxStock = maxStock;
       if (category) params.category = category;
 
-      const res = await axios.get("http://localhost:3005/api/products/filter", {
+      const res = await axios.get("https://backendlombaecomerce-production.up.railway.app/api/products/filter", {
         params,
       });
 
@@ -66,7 +66,7 @@ const Dashboard = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("http://localhost:3005/api/products/product");
+      const res = await axios.get("https://backendlombaecomerce-production.up.railway.app/api/products/product");
       setProducts(res.data || []);
     } catch (err) {
       console.log("Error fetching products!", err);
@@ -87,7 +87,7 @@ const Dashboard = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.post("http://localhost:3005/api/products/delete-multiple", {
+      await axios.post("https://backendlombaecomerce-production.up.railway.app/api/products/delete-multiple", {
         ids: selectedProducts,
       });
       fetchProducts();
@@ -104,7 +104,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:3005/api/category");
+        const res = await axios.get("https://backendlombaecomerce-production.up.railway.app/api/category");
         const payload = res.data?.[0]?.payload || [];
         setCategories(payload);
         // console.log("Categories:", categories);

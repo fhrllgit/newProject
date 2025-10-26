@@ -7,6 +7,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const RightAdmin = () => {
   const [products, setProducts] = useState([]);
@@ -21,14 +22,14 @@ const RightAdmin = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // transaksi states
   const [summary, setSummary] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  
+  const [weeklyData, setWeeklyData] = useState([]);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  // === FETCH PRODUK & FILTER ===
   const fetchFilteredProducts = async () => {
     setLoading(true);
     setError("");
@@ -39,7 +40,7 @@ const RightAdmin = () => {
       if (maxStock) params.maxStock = maxStock;
       if (category) params.category = category;
 
-      const res = await axios.get("http://localhost:3005/api/products/filter", {
+      const res = await axios.get("https://backendlombaecomerce-production.up.railway.app/api/products/filter", {
         params,
       });
       setProducts(res.data || []);
@@ -55,7 +56,7 @@ const RightAdmin = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get("http://localhost:3005/api/products/product");
+      const res = await axios.get("https://backendlombaecomerce-production.up.railway.app/api/products/product");
       setProducts(res.data || []);
     } catch (err) {
       console.log("Error fetching products!", err);
@@ -67,7 +68,7 @@ const RightAdmin = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:3005/api/category");
+      const res = await axios.get("https://backendlombaecomerce-production.up.railway.app/api/category");
       const payload = res.data?.[0]?.payload || [];
       setCategories(payload);
     } catch (err) {
@@ -75,10 +76,9 @@ const RightAdmin = () => {
     }
   };
 
-  // === FETCH TRANSAKSI ===
   const fetchTransaksi = async () => {
     try {
-      const BASE_URL = "http://localhost:3005/api/transactions";
+      const BASE_URL = "https://backendlombaecomerce-production.up.railway.app/api/transactions";
       const summaryRes = await axios.get(`${BASE_URL}/summary`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -88,9 +88,51 @@ const RightAdmin = () => {
 
       setSummary(summaryRes.data.summary);
       setTransactions(listRes.data);
+      
+      generateWeeklyData(listRes.data);
     } catch (error) {
       console.error("Gagal memuat data transaksi:", error);
     }
+  };
+
+  const generateWeeklyData = (transactionsList) => {
+    const now = new Date();
+    const weeklyStats = [];
+    
+    for (let i = 3; i >= 0; i--) {
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - (i + 1) * 7);
+      const weekEnd = new Date(now);
+      weekEnd.setDate(now.getDate() - i * 7);
+      
+      const weekTransactions = transactionsList.filter(t => {
+        const transDate = new Date(t.created_at);
+        return transDate >= weekStart && transDate < weekEnd;
+      });
+      
+      const pendapatan = weekTransactions
+        .filter(t => t.status === "selesai" || t.status === "Selesai")
+        .reduce((sum, t) => sum + (t.total_after_discount || 0), 0);
+      
+      const selesai = weekTransactions.filter(
+        t => t.status === "selesai" || t.status === "Selesai"
+      ).length;
+      
+      const totalProdukTerjual = weekTransactions
+        .filter(t => t.status === "selesai" || t.status === "Selesai")
+        .reduce((sum, t) => sum + (t.total_item || 0), 0);
+      
+      const weekLabel = `${weekStart.getDate()}/${weekStart.getMonth() + 1} - ${weekEnd.getDate()}/${weekEnd.getMonth() + 1}`;
+      
+      weeklyStats.push({
+        minggu: weekLabel,
+        pendapatan: pendapatan,
+        transaksiSelesai: selesai,
+        totalProduk: totalProdukTerjual
+      });
+    }
+    
+    setWeeklyData(weeklyStats);
   };
 
   useEffect(() => {
@@ -99,7 +141,6 @@ const RightAdmin = () => {
     fetchTransaksi();
   }, []);
 
-  // === HANDLE SELECT & DELETE ===
   const handleSelectProduct = (id) => {
     setSelectedProducts((prev) =>
       prev.includes(id) ? prev.filter((pid) => pid !== id) : [...prev, id]
@@ -122,7 +163,7 @@ const RightAdmin = () => {
 
   const confirmDelete = async () => {
     try {
-      await axios.post("http://localhost:3005/api/products/delete-multiple", {
+      await axios.post("https://backendlombaecomerce-production.up.railway.app/api/products/delete-multiple", {
         ids: selectedProducts,
       });
       fetchProducts();
@@ -147,7 +188,6 @@ const RightAdmin = () => {
       minimumFractionDigits: 0,
     }).format(number || 0);
 
-  // === UI LOADING & ERROR ===
   if (loading)
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -170,10 +210,8 @@ const RightAdmin = () => {
       </div>
     );
 
-  // === DASHBOARD ===
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* HEADER */}
       <div className="w-full bg-white sticky top-0 z-10 shadow-sm">
         <div className="px-6 py-3 flex justify-between items-center border-b border-gray-200">
           <button className="text-gray-600 hover:text-gray-900">
@@ -189,39 +227,62 @@ const RightAdmin = () => {
         </div>
       </div>
 
-      {/* DASHBOARD OVERVIEW */}
       <div className="px-6 py-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-gradient-to-br from-gray-900 to-gray-700 shadow-lg rounded-xl text-white p-5">
-          <h3 className="text-sm opacity-80 mb-1">Total Pendapatan</h3>
+        <div className="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600 shadow-lg rounded-xl text-white p-5">
+          <h3 className="text-sm opacity-90 mb-1">Total Pendapatan</h3>
           <p className="text-2xl font-bold">
             {formatToIDR(summary?.total_pendapatan)}
           </p>
         </div>
-
-        <div className="bg-gradient-to-br from-gray-800 to-gray-600 shadow-lg rounded-xl text-white p-5">
-          <h3 className="text-sm opacity-80 mb-1">Transaksi Selesai</h3>
+        <div className="bg-gradient-to-br from-zinc-800 via-zinc-700 to-zinc-600 shadow-lg rounded-xl text-white p-5">
+          <h3 className="text-sm opacity-90 mb-1">Transaksi Selesai</h3>
           <p className="text-2xl font-bold">{summary?.total_selesai || 0}</p>
         </div>
-
-        <div className="bg-gradient-to-br from-gray-600 to-gray-400 shadow-lg rounded-xl text-white p-5">
-          <h3 className="text-sm opacity-80 mb-1">Diproses</h3>
+        <div className="bg-gradient-to-br from-neutral-800 via-neutral-700 to-neutral-600 shadow-lg rounded-xl text-white p-5">
+          <h3 className="text-sm opacity-90 mb-1">Diproses</h3>
           <p className="text-2xl font-bold">{summary?.total_diproses || 0}</p>
         </div>
-
-        <div className="bg-gradient-to-br from-gray-400 to-gray-200 shadow-lg rounded-xl text-gray-800 p-5">
-          <h3 className="text-sm opacity-80 mb-1">Dibatalkan</h3>
+        <div className="bg-gradient-to-br from-stone-800 via-stone-700 to-stone-600 shadow-lg rounded-xl text-white p-5">
+          <h3 className="text-sm opacity-90 mb-1">Dibatalkan</h3>
           <p className="text-2xl font-bold">{summary?.total_batal || 0}</p>
         </div>
-
-        <div className="bg-white shadow-md rounded-xl p-5 flex flex-col justify-between border border-gray-100">
-          <h3 className="text-gray-500 text-sm font-medium">Total Produk</h3>
-          <p className="text-3xl font-bold text-gray-900 mt-2">
-            {products.length}
-          </p>
+        <div className="bg-gradient-to-br from-gray-800 via-gray-700 to-gray-600 shadow-lg rounded-xl text-white p-5">
+          <h3 className="text-sm opacity-90 mb-1">Total Produk</h3>
+          <p className="text-2xl font-bold mt-2">{products.length}</p>
         </div>
       </div>
 
-      {/* FILTER BAR */}
+      <div className="px-6 pb-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">Pendapatan Per Minggu</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={weeklyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="minggu" />
+              <YAxis />
+              <Tooltip formatter={(value) => formatToIDR(value)} />
+              <Legend />
+              <Line type="monotone" dataKey="pendapatan" stroke="#1f2937" strokeWidth={2} name="Pendapatan" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">Transaksi & Produk Terjual Per Minggu</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={weeklyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="minggu" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="transaksiSelesai" fill="#1f2937" name="Transaksi Selesai" />
+              <Bar dataKey="totalProduk" fill="#4b5563" name="Produk Terjual" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
       <div className="px-6">
         <div className="bg-white rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4 border border-gray-200">
           <div className="flex items-center flex-1 gap-2 border border-gray-300 rounded-xl px-3 py-2 bg-gray-50">
@@ -288,7 +349,6 @@ const RightAdmin = () => {
         </div>
       </div>
 
-      {/* TABLE PRODUK */}
       <div className="px-6 py-6">
         <div className="flex justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-800">Daftar Produk</h2>
@@ -415,7 +475,10 @@ const RightAdmin = () => {
             </thead>
             <tbody>
               {transactions.map((t) => (
-                <tr key={t.order_id} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={t.order_id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
                   <td className="p-4">{t.order_id}</td>
                   <td className="p-4">{t.user_name}</td>
                   <td className="p-4">{formatToIDR(t.total_after_discount)}</td>
@@ -431,7 +494,6 @@ const RightAdmin = () => {
         </div>
       </div>
 
-      {/* DELETE MODAL */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
           <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">

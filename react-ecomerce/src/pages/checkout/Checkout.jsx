@@ -138,7 +138,7 @@ const CheckoutPage = () => {
     if (activeTab === "PESANAN_DIBUAT" && token) {
       const fetchOrders = async () => {
         try {
-          const res = await fetch("http://localhost:3005/api/orders/user", {
+          const res = await fetch("https://backendlombaecomerce-production.up.railway.app/api/orders/user", {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (!res.ok) throw new Error("Gagal mengambil data pesanan");
@@ -159,7 +159,7 @@ const CheckoutPage = () => {
     if (activeTab === "HISTORY" && token) {
       const fetchHistory = async () => {
         try {
-          const res = await fetch("http://localhost:3005/api/orders/history", {
+          const res = await fetch("https://backendlombaecomerce-production.up.railway.app/api/orders/history", {
             headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();
@@ -465,7 +465,7 @@ const CheckoutPage = () => {
                 };
 
                 try {
-                  const res = await fetch("http://localhost:3005/api/orders", {
+                  const res = await fetch("https://backendlombaecomerce-production.up.railway.app/api/orders", {
                     method: "POST",
                     headers: {
                       "Content-Type": "application/json",

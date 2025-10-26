@@ -6,7 +6,7 @@ const UserList = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("http://localhost:3005/api/admin/users", {
+    fetch("https://backendlombaecomerce-production.up.railway.app/api/admin/users", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
